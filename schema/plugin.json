@@ -1,0 +1,8 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "title": "cropmstudio",
+  "description": "cropmstudio settings.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}
