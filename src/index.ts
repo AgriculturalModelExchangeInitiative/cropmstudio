@@ -1,11 +1,20 @@
 import {
+  ILayoutRestorer,
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 
+import { ICommandPalette } from '@jupyterlab/apputils';
+
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
 import { requestAPI } from './request';
+
+import { CropmstudioWidget } from './widgets/cropmstudio';
+
+const CommandIds = {
+  open: 'cropmstudio:open'
+};
 
 /**
  * Initialization data for the cropmstudio extension.
@@ -14,9 +23,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'cropmstudio:plugin',
   description: 'A JupyterLab extension.',
   autoStart: true,
-  optional: [ISettingRegistry],
-  activate: (app: JupyterFrontEnd, settingRegistry: ISettingRegistry | null) => {
-    console.log('JupyterLab extension cropmstudio is activated!');
+  optional: [ICommandPalette, ILayoutRestorer, ISettingRegistry],
+  activate: (
+    app: JupyterFrontEnd,
+    palette: ICommandPalette | null,
+    restorer: ILayoutRestorer | null,
+    settingRegistry: ISettingRegistry | null
+  ) => {
+    const cropmstudioWidget = new CropmstudioWidget();
 
     if (settingRegistry) {
       settingRegistry
@@ -31,13 +45,47 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     requestAPI<any>('hello')
       .then(data => {
-        console.log(data);
+        console.log('hello', data);
       })
       .catch(reason => {
         console.error(
           `The cropmstudio server extension appears to be missing.\n${reason}`
         );
       });
+
+    app.commands.addCommand(CommandIds.open, {
+      label: 'Cropmstudio',
+      caption: 'Open the Cropmstudio widget',
+      execute: () => {
+        // Check if the widget already exists in shell
+        let widget = Array.from(app.shell.widgets('main')).find(
+          w => w.id === 'cropmstudio-widget'
+        );
+
+        if (!widget && cropmstudioWidget) {
+          // Use the pre-created widget
+          widget = cropmstudioWidget;
+          app.shell.add(widget, 'main');
+        }
+
+        if (widget) {
+          app.shell.activateById(widget.id);
+        }
+      },
+      describedBy: {
+        args: {}
+      }
+    });
+
+    if (palette) {
+      palette.addItem({ category: 'cropmstudio', command: CommandIds.open });
+    }
+
+    if (restorer) {
+      restorer.add(cropmstudioWidget, cropmstudioWidget.id);
+    }
+
+    console.log('JupyterLab extension cropmstudio is activated!');
   }
 };
 

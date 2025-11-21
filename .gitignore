@@ -11,6 +11,9 @@ cropmstudio/labextension
 # Version file is handled by hatchling
 cropmstudio/_version.py
 
+# Built interfaces directory
+**/_interface/
+
 # Integration tests
 ui-tests/test-results/
 ui-tests/playwright-report/
@@ -102,6 +105,9 @@ celerybeat-schedule
 
 # Rope project settings
 .ropeproject
+
+# VSCode project settings
+.vscode
 
 # Mr Developer
 .mr.developer.cfg

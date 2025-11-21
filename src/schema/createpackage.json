@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "title": "ICreatePackage",
+  "description": "Create package",
+  "label": "Create Package",
+  "additionalProperties": false,
+  "properties": {
+    "projectName": {
+      "type": "string",
+      "title": "Project name",
+      "default": "AgriculturalModelExchangeInitiative"
+    },
+    "packageName": {
+      "type": "string",
+      "title": "Package name"
+    },
+    "authors": {
+      "type": "string",
+      "title": "Authors"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "license": {
+      "type": "string",
+      "title": "License",
+      "enum": ["", "MIT", "BSD-3-Clause"],
+      "default": ""
+    }
+  },
+  "required": ["projectName", "packageName", "description"]
+}

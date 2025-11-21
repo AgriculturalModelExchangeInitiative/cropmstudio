@@ -4,6 +4,8 @@ from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 import tornado
 
+from .handlers import CreatePackageHandler
+
 class HelloRouteHandler(APIHandler):
     # The following decorator should be present on all verb methods (head, get, post,
     # patch, put, delete, options) to ensure only authorized user can request the
@@ -24,6 +26,9 @@ def setup_route_handlers(web_app):
     base_url = web_app.settings["base_url"]
 
     hello_route_pattern = url_path_join(base_url, "cropmstudio", "hello")
-    handlers = [(hello_route_pattern, HelloRouteHandler)]
+    handlers = [
+        (hello_route_pattern, HelloRouteHandler),
+        (url_path_join(base_url, "cropmstudio", "createpackage"), CreatePackageHandler)
+    ]
 
     web_app.add_handlers(host_pattern, handlers)

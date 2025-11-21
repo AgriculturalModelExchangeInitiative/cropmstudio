@@ -3,3 +3,50 @@
 
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
+
+.jp-cropmstudio-widget .jp-cropmstudio-container {
+  display: flex;
+  height: 100%;
+}
+
+.jp-cropmstudio-widget .menu-panel {
+  width: 220px;
+  border-right: 1px solid var(--jp-layout-color1);
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.jp-cropmstudio-widget .menu-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.jp-cropmstudio-widget .menu-tooltip {
+  margin-top: 18px;
+  color: var(--jp-ui-font-color2);
+  font-size: 12px;
+}
+
+.jp-cropmstudio-widget .form-panel {
+  flex: 1;
+  padding: 12px;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+.jp-cropmstudio-widget .form-container {
+  padding: 12px;
+}
+
+.jp-cropmstudio-widget .form-buttons {
+  margin-top: 12px;
+}
+
+.jp-cropmstudio-widget .form-buttons .jp-Button:not(:first-child) {
+  margin-left: 20px;
+}
+
+.jp-cropmstudio-widget .form-placeholder {
+  padding: 8px;
+  color: var(--jp-ui-font-color2);
+}
