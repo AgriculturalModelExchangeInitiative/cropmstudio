@@ -54,7 +54,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       });
 
     app.commands.addCommand(CommandIds.open, {
-      label: 'Cropmstudio',
+      label: 'Open Cropmstudio',
       caption: 'Open the Cropmstudio widget',
       execute: () => {
         // Check if the widget already exists in shell

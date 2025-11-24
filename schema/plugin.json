@@ -2,6 +2,27 @@
   "jupyter.lab.shortcuts": [],
   "title": "cropmstudio",
   "description": "cropmstudio settings.",
+  "jupyter.lab.menus": {
+    "main": [
+      {
+        "id": "jp-mainmenu-file",
+        "items": [
+          {
+            "type": "separator",
+            "rank": 11
+          },
+          {
+            "command": "cropmstudio:open",
+            "rank": 11
+          },
+          {
+            "type": "separator",
+            "rank": 11
+          }
+        ]
+      }
+    ]
+  },
   "type": "object",
   "properties": {},
   "additionalProperties": false
