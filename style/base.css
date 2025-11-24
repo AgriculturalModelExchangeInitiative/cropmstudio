@@ -4,6 +4,11 @@
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
 
+/* Hide panel level error as duplicated the field level error */
+.jp-cropmstudio-widget .form-container .panel.errors {
+  display: none;
+}
+
 .jp-cropmstudio-widget .jp-cropmstudio-container {
   display: flex;
   height: 100%;

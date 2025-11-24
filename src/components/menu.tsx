@@ -19,12 +19,12 @@ export interface IMenuProps {
  */
 export function Menu(props: IMenuProps): JSX.Element {
   const onclick = async (item: IMenuItem) => {
-    const { schema } = item;
+    const { schema, uiSchema } = item;
     let sourceData = {};
     if (item.getFormData) {
       sourceData = await item?.getFormData();
     }
-    props.onClick(item.endpoint, { schema, sourceData });
+    props.onClick(item.endpoint, { schema, sourceData, uiSchema });
   };
 
   return (

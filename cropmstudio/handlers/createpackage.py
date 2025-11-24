@@ -14,12 +14,20 @@ class CreatePackageHandler(APIHandler):
     def post(self):
         data = self.get_json_body()
         self.log.warning(f"DATA: {data}")
+
+        missing_args = []
+        for arg in ["projectName", "packageName", "description"]:
+            if data.get(arg, None) is None:
+                missing_args.append(arg)
+        if len(missing_args):
+            raise tornado.web.HTTPError(400, f"The following data is missing to create a package: {', '.join(missing_args)}")
+
         dirpath = "./packages"
-        project_name = data.get("projectName", None)
-        package_name = data.get("packageName", None)
-        authors = data.get("authors", None)
-        description = data.get("description", None)
-        license = data.get("license", None)
+        project_name = data.get("projectName")
+        package_name = data.get("packageName")
+        authors = data.get("authors", "")
+        description = data.get("description")
+        license = data.get("license", "")
 
         if (not Path(dirpath).is_dir):
             Path(dirpath).mkdir()

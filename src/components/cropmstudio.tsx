@@ -51,6 +51,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
         {selected ? (
           <BaseForm
             schema={selected.schema}
+            uiSchema={selected.uiSchema}
             sourceData={selected.sourceData}
             submit={onFormSubmit}
             cancel={onFormCancel}

@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "title": "IImportPackage",
+  "description": "Import package",
+  "label": "Import Package",
+  "additionalProperties": false,
+  "properties": {
+    "package": {
+      "type": "string",
+      "format": "data-url",
+      "title": "Package to import",
+      "description": "The package must be an archive in zip format"
+    }
+  },
+  "required": ["package"]
+}

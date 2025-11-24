@@ -10,5 +10,6 @@ export interface IDict<T = any> {
  */
 export interface IFormInit {
   schema: IDict;
+  uiSchema?: IDict;
   sourceData?: IDict;
 }

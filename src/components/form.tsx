@@ -29,7 +29,7 @@ const WrappedFormComponent: React.FC<any> = props => {
  * The base form using the schema.
  */
 export function BaseForm(props: IBaseFormProps): JSX.Element {
-  const { schema, submit } = props;
+  const { schema, submit, uiSchema } = props;
   const [formData, setFormData] = React.useState<IDict>(props.sourceData ?? {});
 
   const handleSubmit = () => {
@@ -40,6 +40,7 @@ export function BaseForm(props: IBaseFormProps): JSX.Element {
     <div className={'form-container'}>
       <WrappedFormComponent
         schema={schema}
+        uiSchema={uiSchema}
         formData={formData}
         onChange={(e: { formData: IDict }) => setFormData(e.formData)}
         liveValidate
