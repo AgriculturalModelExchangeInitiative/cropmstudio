@@ -25,8 +25,8 @@
     "license": {
       "type": "string",
       "title": "License",
-      "enum": ["", "MIT", "BSD-3-Clause"],
-      "default": ""
+      "enum": ["No license file", "MIT", "BSD-3-Clause"],
+      "default": "No license file"
     }
   },
   "required": ["projectName", "packageName", "description"]
