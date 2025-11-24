@@ -3,7 +3,6 @@
 [![Github Actions Status](https://github.com/AgriculturalModelExchangeInitiative/cropmstudio/workflows/Build/badge.svg)](https://github.com/AgriculturalModelExchangeInitiative/cropmstudio/actions/workflows/build.yml)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/AgriculturalModelExchangeInitiative/cropmstudio/main?urlpath=lab)
 
-
 A JupyterLab extension.
 
 This extension is composed of a Python package named `cropmstudio`

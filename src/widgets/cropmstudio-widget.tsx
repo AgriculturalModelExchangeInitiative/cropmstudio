@@ -31,7 +31,7 @@ export class CropmstudioWidget extends ReactWidget {
       })
       .catch(reason => {
         console.error(
-          `The cropmstudio server extension appears to be missing.\n${reason}`
+          `An error occurred while submitting the form.\n${reason}`
         );
       });
   };

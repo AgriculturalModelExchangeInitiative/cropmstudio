@@ -10,7 +10,7 @@ import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
 import { requestAPI } from './request';
 
-import { CropmstudioWidget } from './widgets/cropmstudio';
+import { CropmstudioWidget } from './widgets/cropmstudio-widget';
 
 const CommandIds = {
   open: 'cropmstudio:open'
