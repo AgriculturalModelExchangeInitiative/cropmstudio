@@ -28,8 +28,8 @@ def setup_route_handlers(web_app):
     hello_route_pattern = url_path_join(base_url, "cropmstudio", "hello")
     handlers = [
         (hello_route_pattern, HelloRouteHandler),
-        (url_path_join(base_url, "cropmstudio", "createpackage"), CreatePackageHandler),
-        (url_path_join(base_url, "cropmstudio", "importpackage"), ImportPackageHandler)
+        (url_path_join(base_url, "cropmstudio", "create-package"), CreatePackageHandler),
+        (url_path_join(base_url, "cropmstudio", "import-package"), ImportPackageHandler)
     ]
 
     web_app.add_handlers(host_pattern, handlers)

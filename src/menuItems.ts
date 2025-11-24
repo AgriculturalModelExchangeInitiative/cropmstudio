@@ -1,5 +1,5 @@
-import createPackageSchema from './schema/createpackage.json';
-import importPackageSchema from './schema/importpackage.json';
+import createPackageSchema from './schema/create-package.json';
+import importPackageSchema from './schema/import-package.json';
 import { IDict } from './types';
 
 export interface IMenuItem {
@@ -11,15 +11,15 @@ export interface IMenuItem {
 }
 
 const createPackage: IMenuItem = {
-  label: createPackageSchema.label,
+  label: createPackageSchema.title,
   schema: createPackageSchema,
-  endpoint: 'createpackage'
+  endpoint: 'create-package'
 };
 
 const importPackage: IMenuItem = {
-  label: importPackageSchema.label,
+  label: importPackageSchema.title,
   schema: importPackageSchema,
-  endpoint: 'importpackage',
+  endpoint: 'import-package',
   uiSchema: {
     package: {
       'ui:options': { accept: '.zip' }

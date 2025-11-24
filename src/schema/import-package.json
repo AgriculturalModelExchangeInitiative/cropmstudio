@@ -1,7 +1,7 @@
 {
   "type": "object",
-  "title": "IImportPackage",
-  "description": "Import package",
+  "title": "Import Package",
+  "description": "Import a package from a local zip file",
   "label": "Import Package",
   "additionalProperties": false,
   "properties": {

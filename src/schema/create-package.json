@@ -1,7 +1,7 @@
 {
   "type": "object",
-  "title": "ICreatePackage",
-  "description": "Create package",
+  "title": "Create Package",
+  "description": "Create a new Crop2ML package",
   "label": "Create Package",
   "additionalProperties": false,
   "properties": {
