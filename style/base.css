@@ -45,7 +45,9 @@
 }
 
 .jp-cropmstudio-widget .form-buttons {
-  margin-top: 12px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: solid 1px var(--jp-border-color2);
 }
 
 .jp-cropmstudio-widget .form-buttons .jp-Button:not(:first-child) {
@@ -55,4 +57,8 @@
 .jp-cropmstudio-widget .form-placeholder {
   padding: 8px;
   color: var(--jp-ui-font-color2);
+}
+
+.jp-cropmstudio-widget .form-buttons .navigate-back svg {
+  transform: rotate(90deg);
 }

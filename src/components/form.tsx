@@ -1,70 +1,82 @@
-import { Button, FormComponent } from '@jupyterlab/ui-components';
+import {
+  Button,
+  caretDownEmptyIcon,
+  FormComponent,
+  LabIcon
+} from '@jupyterlab/ui-components';
 import { IChangeEvent } from '@rjsf/core';
 import validatorAjv8 from '@rjsf/validator-ajv8';
 import React from 'react';
 
-import { IDict, IFormInit } from '../types';
+import { IDict, IFormBuild } from '../types';
 
 /**
  * The base form properties.
  */
-export interface IBaseFormProps extends IFormInit {
-  submit: (data: IDict<any>) => void;
-  cancel: () => void;
+export interface IBaseFormProps extends IFormBuild {
+  onSubmit: (data: IDict<any>) => void;
+  onCancel: () => void;
+  onNavigateBack: ((data: IDict<any>) => void) | null;
 }
 
 const WrappedFormComponent: React.FC<any> = props => {
-  const { fields, ...rest } = props;
-  return (
-    <FormComponent
-      {...rest}
-      validator={validatorAjv8}
-      fields={{
-        ...fields
-      }}
-    />
-  );
+  return <FormComponent {...props} validator={validatorAjv8} />;
 };
 
 /**
  * The base form using the schema.
  */
 export function BaseForm(props: IBaseFormProps): JSX.Element {
-  const { schema, submit, uiSchema } = props;
+  const { getFormData, onSubmit, uiSchema, updateSchema } = props;
+  const [schema, setSchema] = React.useState<IDict>({ ...props.schema });
+  const [formData, setFormData] = React.useState<IDict>({
+    ...(props.sourceData ?? {})
+  });
   const [isValid, setIsValid] = React.useState<boolean>(false);
-  const [formData, setFormData] = React.useState<IDict>(props.sourceData ?? {});
-  const formRef = React.useRef<any>(null);
 
+  /**
+   * Update the schema when related props are updated.
+   */
   React.useEffect(() => {
-    if (formRef.current) {
-      // Trigger validation on initial load
-      const validationResult = formRef.current.validate(formData);
-      if (validationResult && validationResult.errors?.length) {
-        setIsValid(false);
-      } else {
-        setIsValid(true);
-      }
-    }
-  }, []);
-
-  const handleSubmit = () => {
-    submit(formData);
-  };
-
-  const handleChange = (e: IChangeEvent) => {
-    setFormData(e.formData);
-    if (e.errors?.length) {
-      setIsValid(false);
+    if (updateSchema) {
+      updateSchema().then(data => {
+        setSchema({ ...data });
+      });
     } else {
-      setIsValid(true);
+      setSchema({ ...props.schema });
     }
+  }, [updateSchema, props.schema]);
+
+  /**
+   * Update the form data and the valid state when the schema is updated.
+   */
+  React.useEffect(() => {
+    if (getFormData) {
+      getFormData().then(data => {
+        const newData = { ...data, ...(props.sourceData ?? {}) };
+        setFormData({ ...newData });
+        setIsValid(validatorAjv8.isValid(schema, newData, schema));
+      });
+    } else {
+      setFormData({ ...(props.sourceData ?? {}) });
+      setIsValid(validatorAjv8.isValid(schema, props.sourceData ?? {}, schema));
+    }
+  }, [schema]);
+
+  /**
+   * Update the form data and the valid state when form has changed.
+   */
+  const handleChange = (e: IChangeEvent) => {
+    setFormData({ ...e.formData });
+    setIsValid(!e.errors || e.errors.length === 0);
   };
 
-  console.log('FORM DATA', formData);
   return (
     <div className={'form-container'}>
       <WrappedFormComponent
-        ref={formRef}
+        // This key is required to properly update the form when the schema is updated.
+        // Should it be fixed ?
+        key={JSON.stringify(schema)}
         schema={schema}
         uiSchema={uiSchema}
         formData={formData}
@@ -72,18 +84,26 @@ export function BaseForm(props: IBaseFormProps): JSX.Element {
         liveValidate
       />
       <div className={'form-buttons'}>
-        <Button
-          className={'jp-mod-styled jp-mod-accept'}
-          onClick={handleSubmit}
-          disabled={!isValid}
-        >
-          Create
-        </Button>
+        {props.onNavigateBack !== null && (
+          <Button onClick={() => props.onNavigateBack!(formData)}>
+            <LabIcon.resolveReact
+              icon={caretDownEmptyIcon}
+              className={'navigate-back'}
+            />
+          </Button>
+        )}
         <Button
           className={'jp-mod-styled jp-mod-reject'}
-          onClick={props.cancel}
+          onClick={props.onCancel}
         >
           Cancel
+        </Button>
+        <Button
+          className={'jp-mod-styled jp-mod-accept'}
+          onClick={() => onSubmit(formData)}
+          disabled={!isValid}
+        >
+          {typeof props.submit === 'string' ? 'Create' : 'Continue'}
         </Button>
       </div>
     </div>

@@ -1,8 +1,8 @@
 import { Button } from '@jupyterlab/ui-components';
 import React from 'react';
 
-import { IMenuItem, menuItems } from '../menuItems';
-import { IFormInit } from '../types';
+import { menuItems } from '../menuItems';
+import { IFormBuild } from '../types';
 
 /**
  * The menu properties.
@@ -11,22 +11,13 @@ export interface IMenuProps {
   /**
    * The function called when clicking a menu button.
    */
-  onClick: (endpoint: string, formInit: IFormInit) => void;
+  onClick: (formBuild: IFormBuild) => void;
 }
 
 /**
  * The component including all the menu buttons.
  */
 export function Menu(props: IMenuProps): JSX.Element {
-  const onclick = async (item: IMenuItem) => {
-    const { schema, uiSchema } = item;
-    let sourceData = {};
-    if (item.getFormData) {
-      sourceData = await item?.getFormData();
-    }
-    props.onClick(item.endpoint, { schema, sourceData, uiSchema });
-  };
-
   return (
     <div>
       <div className={'menu-container'}>
@@ -34,7 +25,7 @@ export function Menu(props: IMenuProps): JSX.Element {
           <Button
             className={'jp-mod-styled'}
             key={item.schema.title}
-            onClick={() => onclick(item)}
+            onClick={() => props.onClick(item)}
             title={item.label}
           >
             {item.label}
