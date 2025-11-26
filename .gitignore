@@ -11,6 +11,9 @@ cropmstudio/labextension
 # Version file is handled by hatchling
 cropmstudio/_version.py
 
+# Generated schema
+**/_schema
+
 # Built interfaces directory
 **/_interface/
 

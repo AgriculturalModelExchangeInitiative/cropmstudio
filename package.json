@@ -36,7 +36,7 @@
         "build:labextension:dev": "jupyter labextension build --development True .",
         "build:lib": "tsc --sourceMap",
         "build:lib:prod": "tsc",
-        "build:schema:js": "echo 'Generating TypeScript types from schema...' && json2ts -i src/schema -o src/_interface --no-unknownAny --unreachableDefinitions --cwd ./src/schema && cp -R ./src/_interface ./lib/_interface",
+        "build:schema:js": "echo 'Generating TypeScript types from schema...' && scripts/build-schemas.js && json2ts -i src/_schema -o src/_interface --no-unknownAny --unreachableDefinitions && cp -R ./src/_interface ./lib/_interface",
         "clean": "jlpm clean:lib",
         "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
         "clean:lintcache": "rimraf .eslintcache .stylelintcache",

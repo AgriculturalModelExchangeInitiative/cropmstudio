@@ -1,5 +1,5 @@
-import createPackageSchema from './schema/create-package.json';
-import importPackageSchema from './schema/import-package.json';
+import createPackageSchema from './_schema/create-package.json';
+import importPackageSchema from './_schema/import-package.json';
 import { IDict, IFormBuild } from './types';
 
 export interface IMenuItem extends IFormBuild {
