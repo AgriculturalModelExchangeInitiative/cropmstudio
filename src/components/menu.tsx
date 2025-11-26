@@ -24,7 +24,7 @@ export function Menu(props: IMenuProps): JSX.Element {
         {menuItems.map(item => (
           <Button
             className={'jp-mod-styled'}
-            key={item.schema.title}
+            key={item.schema.$id}
             onClick={() => props.onClick(item)}
             title={item.label}
           >

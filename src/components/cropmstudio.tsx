@@ -11,7 +11,7 @@ export type CropmstudioProps = {
   /**
    * The function called when submitting a form.
    */
-  submit: (endpoint: string, data: IDict<any>) => void;
+  submit: (endpoint: string, data: IDict<any>) => Promise<any>;
 };
 
 /**
@@ -27,7 +27,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
       setCanGoBack(false);
     } else {
       const currentIndex = navigation.current.findIndex(
-        form => form.schema.title === current.schema.title
+        form => form.schema.$id === current.schema.$id
       );
       setCanGoBack(currentIndex !== 0);
     }
@@ -55,7 +55,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
     }
 
     const currentIndex = navigation.current.findIndex(
-      form => form.schema.title === current.schema.title
+      form => form.schema.$id === current.schema.$id
     );
     let previousForm: IFormBuild;
     if (currentIndex !== -1) {
@@ -75,7 +75,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
    * If submit is a string, it calls the relevant endpoint, otherwise it opens the
    * relevant form.
    */
-  const onFormSubmit = (data: IDict<any>) => {
+  const onFormSubmit = async (data: IDict<any>) => {
     if (!current) {
       console.error('There is no current form to submit.');
       return;
@@ -83,7 +83,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
 
     // Update the current form data in navigation.
     const currentIndex = navigation.current.findIndex(
-      form => form.schema.title === current.schema.title
+      form => form.schema.$id === current.schema.$id
     );
     if (currentIndex !== -1) {
       navigation.current[currentIndex] = { ...current, sourceData: data };
@@ -97,15 +97,17 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
       if (navigation.current.length > 1) {
         // Send all the forms.
         navigation.current.forEach(
-          form => (dataToSend[form.schema.title] = form.sourceData)
+          form => (dataToSend[form.schema.$id] = form.sourceData)
         );
       } else {
         // Send only the current data.
         dataToSend = data;
       }
-      props.submit(current.submit, dataToSend);
-      setCurrent(undefined);
-      navigation.current = [];
+      const submission = await props.submit(current.submit, dataToSend);
+      if (submission.success) {
+        setCurrent(undefined);
+        navigation.current = [];
+      }
     } else {
       // Get the next form from the submit value or function.
       let nextForm: IFormBuild;
@@ -123,13 +125,11 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
 
       // Use the one from navigation if it exists.
       const nextIndex = navigation.current.findIndex(
-        form => form.schema.title === nextForm.schema.title
+        form => form.schema.$id === nextForm.schema.$id
       );
 
       if (nextIndex !== -1) {
-        if (
-          nextForm.schema.title === navigation.current[nextIndex].schema.title
-        ) {
+        if (nextForm.schema.$id === navigation.current[nextIndex].schema.$id) {
           nextForm = navigation.current[nextIndex];
         } else {
           navigation.current[nextIndex] = nextForm;

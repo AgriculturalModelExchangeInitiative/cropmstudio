@@ -21,18 +21,20 @@ export class CropmstudioWidget extends ReactWidget {
   /**
    * Function calling the RestAPI when submitting the form.
    */
-  private _submit = (endpoint: string, data: IDict<any>) => {
-    requestAPI<any>(endpoint, {
+  private _submit = (endpoint: string, data: IDict<any>): Promise<any> => {
+    return requestAPI<any>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data)
     })
       .then(data => {
         console.log('RECEIVED', endpoint, data);
+        return data;
       })
       .catch(reason => {
         console.error(
           `An error occurred while submitting the form.\n${reason}`
         );
+        return { success: false, error: reason };
       });
   };
 
