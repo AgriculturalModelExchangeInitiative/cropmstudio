@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "model-header",
+  "title": "Create Model",
+  "description": "Schema for the model creation entry point (header information)",
+  "type": "object",
+  "properties": {
+    "Path": {
+      "type": "string",
+      "description": "Path to the package directory"
+    },
+    "Model type": {
+      "type": "string",
+      "enum": ["unit", "composition"],
+      "description": "Type of model"
+    },
+    "Model name": {
+      "type": "string",
+      "description": "Name of the model"
+    },
+    "Model ID": {
+      "type": "string",
+      "description": "Unique identifier for the model"
+    },
+    "Version": {
+      "type": "string",
+      "description": "Version number",
+      "default": "1.0"
+    },
+    "Timestep": {
+      "type": "string",
+      "description": "Model timestep",
+      "default": "1"
+    },
+    "Title": {
+      "type": "string",
+      "description": "Model title"
+    },
+    "Authors": {
+      "type": "string",
+      "description": "Model authors"
+    },
+    "Institution": {
+      "type": "string",
+      "description": "Institution"
+    },
+    "Reference": {
+      "type": "string",
+      "description": "Reference"
+    },
+    "ExtendedDescription": {
+      "type": "string",
+      "description": "Extended description of the model"
+    }
+  },
+  "required": [
+    "Path",
+    "Model type",
+    "Model name",
+    "Model ID",
+    "Version",
+    "Timestep",
+    "Title",
+    "Authors",
+    "Institution",
+    "Reference",
+    "ExtendedDescription"
+  ],
+  "additionalProperties": false
+}

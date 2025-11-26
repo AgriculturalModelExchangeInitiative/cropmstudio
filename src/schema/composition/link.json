@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "composition/link",
+  "title": "Composition Link",
+  "description": "Schema for a single link between models in a composition",
+  "type": "object",
+  "properties": {
+    "Link type": {
+      "type": "string",
+      "enum": ["InputLink", "InternalLink", "OutputLink"],
+      "description": "Type of link between models"
+    },
+    "Source": {
+      "type": "string",
+      "pattern": "^([a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+)?$",
+      "description": "Source variable in format 'ModelName.variableName' (empty for InputLink)"
+    },
+    "Target": {
+      "type": "string",
+      "pattern": "^([a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+)?$",
+      "description": "Target variable in format 'ModelName.variableName' (empty for OutputLink)"
+    }
+  },
+  "required": ["Link type", "Source", "Target"],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "Link type": {
+            "const": "InputLink"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "Source": {
+            "const": ""
+          },
+          "Target": {
+            "pattern": "^[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "Link type": {
+            "const": "OutputLink"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "Source": {
+            "pattern": "^[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$"
+          },
+          "Target": {
+            "const": ""
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "Link type": {
+            "const": "InternalLink"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "Source": {
+            "pattern": "^[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$"
+          },
+          "Target": {
+            "pattern": "^[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+$"
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "unit/parameterset",
+  "title": "Parameter Set",
+  "description": "Schema for a single parameter set",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Unique name of the parameter set"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the parameter set"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Dictionary of parameter values (keys are parameter names from inputs)",
+      "patternProperties": {
+        ".*": {
+          "type": "string",
+          "description": "Parameter value (must match the format and constraints of the corresponding input parameter)"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": true
+    }
+  },
+  "required": ["name", "description", "parameters"],
+  "additionalProperties": false
+}

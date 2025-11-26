@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "unit-model",
+  "title": "Unit Model",
+  "description": "Schema for unit model creation (without header)",
+  "type": "object",
+  "properties": {
+    "inputsOutputs": {
+      "$ref": "unit/inputs-outputs.json",
+      "description": "Inputs, outputs, and functions"
+    },
+    "parametersets": {
+      "$ref": "unit/parametersets.json",
+      "description": "Parameter sets (optional)"
+    },
+    "testsets": {
+      "$ref": "unit/testsets.json",
+      "description": "Test sets (optional)"
+    }
+  },
+  "required": ["inputsOutputs"],
+  "additionalProperties": false
+}

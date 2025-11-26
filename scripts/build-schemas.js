@@ -127,14 +127,18 @@ function resolveRefs(schema, currentDir, visited = new Set()) {
     const resolvedSchema = deepClone(referencedSchema);
 
     // Recursively resolve refs in the referenced schema
-    const fullyResolved = resolveRefs(resolvedSchema, referencedDir, new Set(visited));
+    const fullyResolved = resolveRefs(
+      resolvedSchema,
+      referencedDir,
+      new Set(visited)
+    );
 
     // Merge properties from current schema (excluding $ref)
     const { $ref, ...otherProps } = schema;
 
     return {
       ...fullyResolved,
-      ...otherProps,
+      ...otherProps
     };
   }
 
@@ -202,9 +206,12 @@ function buildSchema(schemaFileName) {
 
   console.log(`  └─ ✅ Done!`);
 
-  return { input: schemaFileName, output: outputFileName, size: JSON.stringify(cleanedSchema).length };
+  return {
+    input: schemaFileName,
+    output: outputFileName,
+    size: JSON.stringify(cleanedSchema).length
+  };
 }
-
 
 /**
  * Generate index file
@@ -226,7 +233,6 @@ function generateIndex(results) {
 
   console.log('  └─ ✅ Done!');
 }
-
 
 /**
  * Main build process

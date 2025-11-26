@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "composition-model",
+  "title": "Composition Model",
+  "description": "Schema for composition model creation (without header)",
+  "type": "object",
+  "properties": {
+    "models": {
+      "$ref": "composition/models-list.json",
+      "description": "List of models included in the composition"
+    },
+    "links": {
+      "$ref": "composition/links-form.json",
+      "description": "Links between models"
+    }
+  },
+  "required": ["models", "links"],
+  "additionalProperties": false
+}

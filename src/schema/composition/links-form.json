@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "composition/links",
+  "title": "Composition Links",
+  "description": "Schema for the links form in a composition model",
+  "type": "object",
+  "properties": {
+    "links": {
+      "type": "array",
+      "description": "Array of links between models",
+      "items": {
+        "$ref": "link.json"
+      },
+      "minItems": 0
+    }
+  },
+  "required": ["links"],
+  "additionalProperties": false
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "unit/inputs-outputs",
+  "title": "Inputs/Outputs",
+  "description": "Schema for the inputs/outputs and functions form",
+  "type": "object",
+  "properties": {
+    "Inputs": {
+      "type": "array",
+      "description": "Array of input/output variables",
+      "items": {
+        "$ref": "input-output.json"
+      },
+      "minItems": 1
+    },
+    "Functions": {
+      "type": "object",
+      "description": "Dictionary of function files",
+      "patternProperties": {
+        ".*\\.pyx$": {
+          "type": "string",
+          "enum": ["internal", "external"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "init": {
+      "type": "boolean",
+      "description": "Whether an initialization function is needed",
+      "default": false
+    }
+  },
+  "required": ["Inputs"],
+  "additionalProperties": false
+}

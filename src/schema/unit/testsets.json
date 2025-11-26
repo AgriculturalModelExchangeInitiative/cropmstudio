@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "unit/testsets",
+  "title": "Test Sets",
+  "description": "Schema for the test sets form",
+  "type": "object",
+  "properties": {
+    "testsets": {
+      "type": "array",
+      "description": "Array of test sets",
+      "items": {
+        "$ref": "testset.json"
+      }
+    }
+  },
+  "required": ["testsets"],
+  "additionalProperties": false
+}

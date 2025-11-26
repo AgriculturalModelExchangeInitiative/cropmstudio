@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "unit/testset",
+  "title": "Test Set",
+  "description": "Schema for a single test set",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Unique name of the test set"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the test set"
+    },
+    "parameterset": {
+      "type": "string",
+      "description": "Name of the associated parameter set (can be empty string if no parameter sets exist)"
+    },
+    "tests": {
+      "type": "array",
+      "description": "Array of tests",
+      "items": {
+        "$ref": "test.json"
+      },
+      "minItems": 1
+    }
+  },
+  "required": ["name", "description", "parameterset", "tests"],
+  "additionalProperties": false
+}

@@ -1,0 +1,173 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "unit/input-output",
+  "title": "Input/Output Variable",
+  "description": "Schema for a single input or output variable",
+  "type": "object",
+  "properties": {
+    "Type": {
+      "type": "string",
+      "enum": ["input", "output", "input & output"],
+      "description": "Whether this is an input, output, or both"
+    },
+    "Name": {
+      "type": "string",
+      "description": "Variable name (must be unique)"
+    },
+    "Description": {
+      "type": "string",
+      "description": "Variable description"
+    },
+    "InputType": {
+      "type": "string",
+      "enum": ["variable", "parameter"],
+      "description": "Type of input"
+    },
+    "Category": {
+      "type": "string",
+      "description": "Variable category (depends on InputType)"
+    },
+    "DataType": {
+      "type": "string",
+      "enum": [
+        "DOUBLE",
+        "DOUBLELIST",
+        "DOUBLEARRAY",
+        "INT",
+        "INTLIST",
+        "INTARRAY",
+        "STRING",
+        "STRINGLIST",
+        "STRINGARRAY",
+        "BOOLEAN",
+        "DATE",
+        "DATELIST",
+        "DATEARRAY"
+      ],
+      "description": "Data type of the variable"
+    },
+    "Len": {
+      "type": "string",
+      "pattern": "^\\d+$",
+      "description": "Array length (required for ARRAY types only)"
+    },
+    "Default": {
+      "type": "string",
+      "description": "Default value (required for inputs, not allowed for outputs)"
+    },
+    "Min": {
+      "type": "string",
+      "description": "Minimum value (only for INT and DOUBLE types)"
+    },
+    "Max": {
+      "type": "string",
+      "description": "Maximum value (only for INT and DOUBLE types)"
+    },
+    "Unit": {
+      "type": "string",
+      "description": "Unit of measurement"
+    },
+    "Uri": {
+      "type": "string",
+      "description": "Optional URI reference"
+    }
+  },
+  "required": [
+    "Type",
+    "Name",
+    "Description",
+    "InputType",
+    "Category",
+    "DataType",
+    "Unit"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "DataType": {
+            "pattern": "ARRAY$"
+          }
+        }
+      },
+      "then": {
+        "required": ["Len"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "Type": {
+            "enum": ["input"]
+          }
+        }
+      },
+      "then": {
+        "required": ["Default"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "Type": {
+            "enum": ["output"]
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "required": ["Default"]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "InputType": {
+            "const": "parameter"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "Category": {
+            "enum": ["constant", "species", "genotypic", "soil", "private"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "InputType": {
+            "const": "variable"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "Category": {
+            "enum": ["state", "rate", "auxiliary", "exogenous"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "Type": {
+            "enum": ["output", "input & output"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "InputType": {
+            "const": "variable"
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}
