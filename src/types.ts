@@ -10,9 +10,13 @@ export interface IDict<T = any> {
  */
 export interface IFormBuild {
   /**
-   * The submit endpoint or next form to build.
+   * The submit endpoint.
    */
-  submit: string | IFormBuild;
+  submit: string | null;
+  /**
+   * The next form, only if submit is null or empty.
+   */
+  nextForm?: IFormBuild | ((data: IDict) => IFormBuild);
   /**
    * The form schema.
    */

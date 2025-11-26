@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Menu } from './menu';
 import { BaseForm } from './form';
+import { Menu } from './menu';
 import { IDict, IFormBuild } from '../types';
 
 /**
@@ -91,7 +91,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
       navigation.current.push({ ...current, sourceData: data });
     }
 
-    if (typeof current.submit === 'string') {
+    if (current.submit) {
       // Submit is a string, call the endpoint.
       let dataToSend: IDict = {};
       if (navigation.current.length > 1) {
@@ -107,17 +107,33 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
       setCurrent(undefined);
       navigation.current = [];
     } else {
-      // Go the next form.
+      // Get the next form from the submit value or function.
+      let nextForm: IFormBuild;
+
+      if (!current.nextForm) {
+        console.error('There is no submit endpoint and no next form.');
+        return;
+      }
+
+      if (typeof current.nextForm === 'function') {
+        nextForm = current.nextForm(data);
+      } else {
+        nextForm = current.nextForm;
+      }
+
+      // Use the one from navigation if it exists.
       const nextIndex = navigation.current.findIndex(
-        form =>
-          form.schema.title === (current.submit as IFormBuild).schema.title
+        form => form.schema.title === nextForm.schema.title
       );
 
-      let nextForm: IFormBuild;
       if (nextIndex !== -1) {
-        nextForm = navigation.current[nextIndex];
-      } else {
-        nextForm = current.submit;
+        if (
+          nextForm.schema.title === navigation.current[nextIndex].schema.title
+        ) {
+          nextForm = navigation.current[nextIndex];
+        } else {
+          navigation.current[nextIndex] = nextForm;
+        }
       }
       setCurrent({ ...nextForm });
       updateCanGoBack(nextForm);

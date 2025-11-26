@@ -103,7 +103,7 @@ export function BaseForm(props: IBaseFormProps): JSX.Element {
           onClick={() => onSubmit(formData)}
           disabled={!isValid}
         >
-          {typeof props.submit === 'string' ? 'Create' : 'Continue'}
+          {props.submit === null ? 'Continue' : 'Create'}
         </Button>
       </div>
     </div>
