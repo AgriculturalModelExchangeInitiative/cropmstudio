@@ -60,7 +60,7 @@ const createModel: IMenuItem = {
     }
     return createCompositeModel;
   },
-  updateSchema: async () => {
+  initSchema: async () => {
     const schema = { ...createModelSchema } as IDict;
     return requestAPI<any>('get-packages', {
       method: 'GET'

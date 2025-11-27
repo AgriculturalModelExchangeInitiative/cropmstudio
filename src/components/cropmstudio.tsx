@@ -39,6 +39,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   const onMenuClick = (formBuild: IFormBuild) => {
     navigation.current = [];
     setCurrent(formBuild);
+    setCanGoBack(false);
   };
 
   /**
@@ -107,6 +108,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
       if (submission.success) {
         setCurrent(undefined);
         navigation.current = [];
+        setCanGoBack(false);
       }
     } else {
       // Get the next form from the submit value or function.

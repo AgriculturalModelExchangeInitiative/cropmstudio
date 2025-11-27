@@ -27,48 +27,49 @@ const WrappedFormComponent: React.FC<any> = props => {
  * The base form using the schema.
  */
 export function BaseForm(props: IBaseFormProps): JSX.Element {
-  const { getFormData, onSubmit, uiSchema, updateSchema } = props;
+  const { getFormData, onDataChanged, onSubmit, uiSchema, initSchema } = props;
   const [schema, setSchema] = React.useState<IDict>({ ...props.schema });
   const [formData, setFormData] = React.useState<IDict>({
     ...(props.sourceData ?? {})
   });
-  const [isValid, setIsValid] = React.useState<boolean>(false);
 
   /**
-   * Update the schema when related props are updated.
+   * Update the schema and init form data when schema property is updated.
    */
   React.useEffect(() => {
-    if (updateSchema) {
-      updateSchema().then(data => {
+    const initFormData = (newSchema: IDict) => {
+      if (getFormData) {
+        getFormData().then(data => {
+          const newData = { ...data, ...(props.sourceData ?? {}) };
+          setFormData({ ...newData });
+        });
+      } else {
+        setFormData({ ...(props.sourceData ?? {}) });
+      }
+    };
+    if (initSchema) {
+      initSchema().then(data => {
         setSchema({ ...data });
+        initFormData({ ...data });
       });
     } else {
       setSchema({ ...props.schema });
+      initFormData({ ...props.schema });
     }
-  }, [updateSchema, props.schema]);
+  }, [initSchema, props.schema]);
 
   /**
-   * Update the form data and the valid state when the schema is updated.
-   */
-  React.useEffect(() => {
-    if (getFormData) {
-      getFormData().then(data => {
-        const newData = { ...data, ...(props.sourceData ?? {}) };
-        setFormData({ ...newData });
-        setIsValid(validatorAjv8.isValid(schema, newData, schema));
-      });
-    } else {
-      setFormData({ ...(props.sourceData ?? {}) });
-      setIsValid(validatorAjv8.isValid(schema, props.sourceData ?? {}, schema));
-    }
-  }, [schema]);
-
-  /**
-   * Update the form data and the valid state when form has changed.
+   * Update the form data and optionally the schema when form has changed.
    */
   const handleChange = (e: IChangeEvent) => {
     setFormData({ ...e.formData });
-    setIsValid(!e.errors || e.errors.length === 0);
+    if (onDataChanged) {
+      onDataChanged(e).then(newSchema => {
+        if (newSchema) {
+          setSchema({ ...newSchema });
+        }
+      });
+    }
   };
 
   return (
@@ -81,31 +82,28 @@ export function BaseForm(props: IBaseFormProps): JSX.Element {
         uiSchema={uiSchema}
         formData={formData}
         onChange={handleChange}
-        liveValidate
-      />
-      <div className={'form-buttons'}>
-        {props.onNavigateBack !== null && (
-          <Button onClick={() => props.onNavigateBack!(formData)}>
-            <LabIcon.resolveReact
-              icon={caretDownEmptyIcon}
-              className={'navigate-back'}
-            />
+        onSubmit={() => onSubmit(formData)}
+      >
+        <div className={'form-buttons'}>
+          {props.onNavigateBack !== null && (
+            <Button onClick={() => props.onNavigateBack!(formData)}>
+              <LabIcon.resolveReact
+                icon={caretDownEmptyIcon}
+                className={'navigate-back'}
+              />
+            </Button>
+          )}
+          <Button
+            className={'jp-mod-styled jp-mod-reject'}
+            onClick={props.onCancel}
+          >
+            Cancel
           </Button>
-        )}
-        <Button
-          className={'jp-mod-styled jp-mod-reject'}
-          onClick={props.onCancel}
-        >
-          Cancel
-        </Button>
-        <Button
-          className={'jp-mod-styled jp-mod-accept'}
-          onClick={() => onSubmit(formData)}
-          disabled={!isValid}
-        >
-          {props.submit === null ? 'Continue' : 'Create'}
-        </Button>
-      </div>
+          <Button className={'jp-mod-styled jp-mod-accept'} type={'submit'}>
+            {props.submit === null ? 'Continue' : 'Create'}
+          </Button>
+        </div>
+      </WrappedFormComponent>
     </div>
   );
 }

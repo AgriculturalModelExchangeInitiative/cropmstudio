@@ -1,3 +1,5 @@
+import { IChangeEvent } from '@rjsf/core';
+
 /**
  * A generic object type.
  */
@@ -14,27 +16,31 @@ export interface IFormBuild {
    */
   submit: string | null;
   /**
-   * The next form, only if submit is null or empty.
-   */
-  nextForm?: IFormBuild | ((data: IDict) => IFormBuild);
-  /**
    * The form schema.
    */
   schema: IDict;
   /**
-   * The UI schema, optional.
+   * The next form, only if submit is null or empty.
+   */
+  nextForm?: IFormBuild | ((data: IDict) => IFormBuild);
+  /**
+   * The UI schema.
    */
   uiSchema?: IDict;
   /**
-   * The initial data, optional.
+   * The initial data.
    */
   sourceData?: IDict;
   /**
-   * An async function returning the initial data, optional.
+   * An async function returning the initial data.
    */
   getFormData?: () => Promise<IDict>;
   /**
-   * An async function returning an updated schema, optional.
+   * An async function returning an updated schema, ran when initializing the form.
    */
-  updateSchema?: () => Promise<IDict>;
+  initSchema?: () => Promise<IDict>;
+  /**
+   * An async returning an updated schema when form data changed.
+   */
+  onDataChanged?: (e: IChangeEvent) => Promise<IDict | null>;
 }
