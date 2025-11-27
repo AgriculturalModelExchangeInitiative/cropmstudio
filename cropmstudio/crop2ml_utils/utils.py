@@ -6,6 +6,9 @@ to the legacy format expected by writeunitXML and writecompositionXML
 """
 
 
+import os
+
+
 def adapt_header_data(json_data):
     """
     Adapt header data from JSON Schema format to writeXML format
@@ -220,3 +223,12 @@ def adapt_composition_model_complete(header, models, links):
     listlink = adapt_composition_links(links)
 
     return datas, listmodel, listlink
+
+def get_models(path: str) -> list[str]:
+    models = []
+    for f in os.listdir(os.path.join(path, 'crop2ml')):
+        split = f.split('.')
+        if all([split[-1] == 'xml', split[0] in ['unit','composition']]):
+            models.append(f)
+
+    return models
