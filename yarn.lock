@@ -4807,6 +4807,7 @@ __metadata:
     "@jupyterlab/settingregistry": ^4.0.0
     "@jupyterlab/testutils": ^4.0.0
     "@jupyterlab/ui-components": ^4.0.0
+    "@lumino/coreutils": ^2.2.2
     "@rjsf/core": ^5.13.4
     "@rjsf/validator-ajv8": ^5.23.1
     "@types/jest": ^29.2.0

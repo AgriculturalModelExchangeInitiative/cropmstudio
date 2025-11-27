@@ -20,9 +20,13 @@ export interface IFormBuild {
    */
   schema: IDict;
   /**
+   * Whether this form should be locked or not after submission.
+   */
+  lock?: boolean;
+  /**
    * The next form, only if submit is null or empty.
    */
-  nextForm?: IFormBuild | ((data: IDict) => IFormBuild);
+  nextForm?: (data: IDict) => Promise<IFormBuild>;
   /**
    * The UI schema.
    */
@@ -34,7 +38,7 @@ export interface IFormBuild {
   /**
    * An async function returning the initial data.
    */
-  getFormData?: () => Promise<IDict>;
+  initFormData?: () => Promise<IDict>;
   /**
    * An async function returning an updated schema, ran when initializing the form.
    */

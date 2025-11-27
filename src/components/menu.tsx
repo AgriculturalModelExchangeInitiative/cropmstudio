@@ -21,14 +21,14 @@ export function Menu(props: IMenuProps): JSX.Element {
   return (
     <div>
       <div className={'menu-container'}>
-        {menuItems.map(item => (
+        {Object.keys(menuItems).map(title => (
           <Button
             className={'jp-mod-styled'}
-            key={item.schema.$id}
-            onClick={() => props.onClick(item)}
-            title={item.label}
+            key={title}
+            onClick={() => props.onClick(menuItems[title]())}
+            title={title}
           >
-            {item.label}
+            {title}
           </Button>
         ))}
       </div>

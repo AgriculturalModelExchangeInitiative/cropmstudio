@@ -4,6 +4,7 @@ import {
   FormComponent,
   LabIcon
 } from '@jupyterlab/ui-components';
+import { JSONExt } from '@lumino/coreutils';
 import { IChangeEvent } from '@rjsf/core';
 import validatorAjv8 from '@rjsf/validator-ajv8';
 import React from 'react';
@@ -27,34 +28,39 @@ const WrappedFormComponent: React.FC<any> = props => {
  * The base form using the schema.
  */
 export function BaseForm(props: IBaseFormProps): JSX.Element {
-  const { getFormData, onDataChanged, onSubmit, uiSchema, initSchema } = props;
-  const [schema, setSchema] = React.useState<IDict>({ ...props.schema });
-  const [formData, setFormData] = React.useState<IDict>({
-    ...(props.sourceData ?? {})
-  });
+  const { initFormData, onDataChanged, onSubmit, uiSchema, initSchema } = props;
+  const [schema, setSchema] = React.useState<IDict>(
+    JSONExt.deepCopy(props.schema)
+  );
+  const [formData, setFormData] = React.useState<IDict>(
+    JSONExt.deepCopy(props.sourceData ?? {})
+  );
 
   /**
    * Update the schema and init form data when schema property is updated.
    */
   React.useEffect(() => {
-    const initFormData = (newSchema: IDict) => {
-      if (getFormData) {
-        getFormData().then(data => {
-          const newData = { ...data, ...(props.sourceData ?? {}) };
+    const formDataInitialization = () => {
+      if (initFormData) {
+        initFormData().then(data => {
+          const newData = {
+            ...data,
+            ...JSONExt.deepCopy(props.sourceData ?? {})
+          };
           setFormData({ ...newData });
         });
       } else {
-        setFormData({ ...(props.sourceData ?? {}) });
+        setFormData(JSONExt.deepCopy(props.sourceData ?? {}));
       }
     };
     if (initSchema) {
       initSchema().then(data => {
         setSchema({ ...data });
-        initFormData({ ...data });
+        formDataInitialization();
       });
     } else {
-      setSchema({ ...props.schema });
-      initFormData({ ...props.schema });
+      setSchema(JSONExt.deepCopy(props.schema));
+      formDataInitialization();
     }
   }, [initSchema, props.schema]);
 

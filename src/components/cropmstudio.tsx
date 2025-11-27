@@ -82,6 +82,10 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
       return;
     }
 
+    if (current.lock) {
+      current.uiSchema = { ...current.uiSchema, 'ui:readonly': true };
+    }
+
     // Update the current form data in navigation.
     const currentIndex = navigation.current.findIndex(
       form => form.schema.$id === current.schema.$id
@@ -119,11 +123,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
         return;
       }
 
-      if (typeof current.nextForm === 'function') {
-        nextForm = current.nextForm(data);
-      } else {
-        nextForm = current.nextForm;
-      }
+      nextForm = await current.nextForm(data);
 
       // Use the one from navigation if it exists.
       const nextIndex = navigation.current.findIndex(
