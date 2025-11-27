@@ -1,9 +1,10 @@
 import json
+import os
 
 import tornado
 from jupyter_server.base.handlers import APIHandler
 
-from ..crop2ml import adapt_unit_model_complete, adapt_composition_model_complete, writecompositionXML, writeunitXML
+from ..crop2ml_utils import adapt_unit_model_complete, adapt_composition_model_complete, writecompositionXML, writeunitXML
 
 
 class CreateModelHandler(APIHandler):
@@ -41,6 +42,8 @@ class CreateModelHandler(APIHandler):
                     "error": "Model type not specified in header"
                 }))
                 return
+
+            header['Path'] = os.path.join(header['Path'], 'crop2ml')
 
             # Create model based on type
             if model_type == 'unit':

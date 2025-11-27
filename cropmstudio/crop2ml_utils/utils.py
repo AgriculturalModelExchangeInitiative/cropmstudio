@@ -224,7 +224,17 @@ def adapt_composition_model_complete(header, models, links):
 
     return datas, listmodel, listlink
 
+
 def get_models(path: str) -> list[str]:
+    """
+    Get the models for a given package path.
+
+    Args:
+        path: The path of the package
+
+    Returns:
+        List of model paths
+    """
     models = []
     for f in os.listdir(os.path.join(path, 'crop2ml')):
         split = f.split('.')
