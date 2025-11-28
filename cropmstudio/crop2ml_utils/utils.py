@@ -8,6 +8,7 @@ to the legacy format expected by writeunitXML and writecompositionXML
 
 import os
 
+from pycropml import pparse
 
 def adapt_header_data(json_data):
     """
@@ -78,7 +79,7 @@ def adapt_inputs_outputs(json_data):
 
     return {
         'Inputs': df_dict,
-        'Functions': json_data.get('Functions', {}),
+        'Functions': json_data.get('Functions', []),
         'init': json_data.get('init', False)
     }
 
@@ -235,6 +236,9 @@ def get_models(path: str) -> list[str]:
     Returns:
         List of model paths
     """
+    if not path or not os.path.isdir(os.path.join(path, 'crop2ml')):
+        return []
+
     models = []
     for f in os.listdir(os.path.join(path, 'crop2ml')):
         split = f.split('.')
@@ -242,3 +246,14 @@ def get_models(path: str) -> list[str]:
             models.append(f)
 
     return models
+
+
+def parse_xml(path: str, modelName: str):
+    """
+    Parses the xml file and calls _buildEdit method to order collected datas
+    """
+    parsing = pparse.model_parser(path)
+
+    for j in parsing:
+        if j.name == modelName:
+            return j

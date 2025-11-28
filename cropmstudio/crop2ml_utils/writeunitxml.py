@@ -184,29 +184,25 @@ class writeunitXML():
 
         buffer += '\n\t</Inputs>\n\n\t<Outputs>'
 
-        if self._iscreate:
-            for i in range(0,len(self._df['Inputs']['Name'])):
-                if any([self._df['Inputs']['Type'][i] == 'output',
-                        self._df['Inputs']['Type'][i] == 'input & output']):
+        # Always use the same logic: outputs are in Inputs with Type='output' or 'input & output'
+        for i in range(0,len(self._df['Inputs']['Name'])):
+            if any([self._df['Inputs']['Type'][i] == 'output',
+                    self._df['Inputs']['Type'][i] == 'input & output']):
 
-                    if self._df['Inputs']['DataType'][i] in ['STRINGARRAY','DATARRAY','INTARRAY','DOUBLEARRAY']:
-                        buffer += '\n\t\t<Output name="{}" description="{}" variablecategory="{}" datatype="{}" len="{}" min="{}" max="{}" unit="{}" uri="{}"/>'.format(self._df['Inputs']['Name'][i],self._df['Inputs']['Description'][i],self._df['Inputs']['Category'][i],self._df['Inputs']['DataType'][i],self._df['Inputs']['Len'][i],self._df['Inputs']['Min'][i],self._df['Inputs']['Max'][i],self._df['Inputs']['Unit'][i],self._df['Inputs']['Uri'][i])
-                    else:
-                        buffer += '\n\t\t<Output name="{}" description="{}" variablecategory="{}" datatype="{}" min="{}" max="{}" unit="{}" uri="{}"/>'.format(self._df['Inputs']['Name'][i],self._df['Inputs']['Description'][i],self._df['Inputs']['Category'][i],self._df['Inputs']['DataType'][i],self._df['Inputs']['Min'][i],self._df['Inputs']['Max'][i],self._df['Inputs']['Unit'][i],self._df['Inputs']['Uri'][i])
-
-        else:
-            for i in range(0,len(self._df['Outputs']['Name'])):
-
-                if self._df['Outputs']['DataType'][i] in ['STRINGARRAY','DATARRAY','INTARRAY','DOUBLEARRAY']:
-                    buffer += '\n\t\t<Output name="{}" description="{}" variablecategory="{}" datatype="{}" len="{}" min="{}" max="{}" unit="{}" uri="{}"/>'.format(self._df['Outputs']['Name'][i],self._df['Outputs']['Description'][i],self._df['Outputs']['Category'][i],self._df['Outputs']['DataType'][i],self._df['Outputs']['Len'][i],self._df['Outputs']['Min'][i],self._df['Outputs']['Max'][i],self._df['Outputs']['Unit'][i],self._df['Outputs']['Uri'][i])
+                if self._df['Inputs']['DataType'][i] in ['STRINGARRAY','DATARRAY','INTARRAY','DOUBLEARRAY']:
+                    buffer += '\n\t\t<Output name="{}" description="{}" variablecategory="{}" datatype="{}" len="{}" min="{}" max="{}" unit="{}" uri="{}"/>'.format(self._df['Inputs']['Name'][i],self._df['Inputs']['Description'][i],self._df['Inputs']['Category'][i],self._df['Inputs']['DataType'][i],self._df['Inputs']['Len'][i],self._df['Inputs']['Min'][i],self._df['Inputs']['Max'][i],self._df['Inputs']['Unit'][i],self._df['Inputs']['Uri'][i])
                 else:
-                    buffer += '\n\t\t<Output name="{}" description="{}" variablecategory="{}" datatype="{}" min="{}" max="{}" unit="{}" uri="{}"/>'.format(self._df['Outputs']['Name'][i],self._df['Outputs']['Description'][i],self._df['Outputs']['Category'][i],self._df['Outputs']['DataType'][i],self._df['Outputs']['Min'][i],self._df['Outputs']['Max'][i],self._df['Outputs']['Unit'][i],self._df['Outputs']['Uri'][i])
+                    buffer += '\n\t\t<Output name="{}" description="{}" variablecategory="{}" datatype="{}" min="{}" max="{}" unit="{}" uri="{}"/>'.format(self._df['Inputs']['Name'][i],self._df['Inputs']['Description'][i],self._df['Inputs']['Category'][i],self._df['Inputs']['DataType'][i],self._df['Inputs']['Min'][i],self._df['Inputs']['Max'][i],self._df['Inputs']['Unit'][i],self._df['Inputs']['Uri'][i])
 
         buffer += '\n\t</Outputs>\n'
 
-        if '' not in  self._df['Functions']:
-            for i,j in self._df['Functions'].items():
-                buffer += '\n\t<Function name="{}" language="Cyml" filename="algo/pyx/{}.pyx" type="{}" description="" />'.format(i.split('.')[0].split('/')[-1], i, j)
+        if self._df['Functions']:
+            for func in self._df['Functions']:
+                file = func['file']
+                func_type = func['type']
+                # Extract name without extension and path
+                name = file.split('.')[0].split('/')[-1]
+                buffer += '\n\t<Function name="{}" language="Cyml" filename="algo/pyx/{}" type="{}" description="" />'.format(name, file, func_type)
 
         buffer += '\n\n\t<Algorithm language="Cyml" platform="" filename="algo/pyx/{}.pyx" />'.format(self._datas['Model name'].lower())
 
@@ -254,8 +250,18 @@ class writeunitXML():
         # if self._change_algo:
         #     self._createAlgo()
 
-        if not self._iscreate and self._datas['Model name'] != self._datas['Old name']:
-            os.remove('{}{}unit.{}.xml'.format(self._datas['Path'], os.path.sep, self._datas['Old name']))
-            #os.remove('{0}{1}algo{1}pyx{1}init.{2}.pyx'.format(self._datas['Path'], os.path.sep, self._datas['Old name'].lower()))
-            os.remove('{0}{1}algo{1}pyx{1}{2}.pyx'.format(self._datas['Path'], os.path.sep, self._datas['Old name'].lower()))
+        if not self._iscreate and 'Old name' in self._datas and self._datas['Model name'] != self._datas['Old name']:
+            try:
+                old_xml = '{0}{1}unit.{2}.xml'.format(self._datas['Path'], os.path.sep, self._datas['Old name'])
+                old_pyx = '{0}{1}algo{1}pyx{1}{2}.pyx'.format(self._datas['Path'], os.path.sep, self._datas['Old name'].lower())
+
+                if os.path.exists(old_xml):
+                    os.remove(old_xml)
+                    print(f"Removed old XML file: {old_xml}")
+
+                if os.path.exists(old_pyx):
+                    os.remove(old_pyx)
+                    print(f"Removed old PYX file: {old_pyx}")
+            except Exception as e:
+                print(f"Error removing old files: {e}")
 

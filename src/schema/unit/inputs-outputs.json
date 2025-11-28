@@ -14,15 +14,25 @@
       "minItems": 1
     },
     "Functions": {
-      "type": "object",
-      "description": "Dictionary of function files",
-      "patternProperties": {
-        ".*\\.pyx$": {
-          "type": "string",
-          "enum": ["internal", "external"]
-        }
-      },
-      "additionalProperties": true
+      "type": "array",
+      "description": "Function files",
+      "items": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "description": "Function file name (must end with .pyx)",
+            "pattern": "\\.pyx$"
+          },
+          "type": {
+            "type": "string",
+            "description": "Function type",
+            "enum": ["internal", "external"]
+          }
+        },
+        "required": ["file", "type"],
+        "additionalProperties": false
+      }
     },
     "init": {
       "type": "boolean",

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "unit/parametersets-form",
+  "$id": "unit/parametersets",
   "title": "Parameter Sets",
   "description": "Schema for the parameter sets form",
   "type": "object",
