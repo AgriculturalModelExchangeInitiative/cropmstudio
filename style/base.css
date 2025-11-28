@@ -62,3 +62,12 @@
 .jp-cropmstudio-widget .form-buttons .navigate-back svg {
   transform: rotate(90deg);
 }
+
+.jp-objectFieldWrapper legend {
+  font-size: var(--jp-content-font-size2);
+  color: var(--jp-ui-font-color0);
+  flex-basis: 100%;
+  padding: 4px 0;
+  font-weight: var(--jp-content-heading-font-weight);
+  border-bottom: 1px solid var(--jp-border-color2);
+}
