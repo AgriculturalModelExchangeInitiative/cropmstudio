@@ -1,5 +1,7 @@
 import { JSONExt } from '@lumino/coreutils';
+import { IChangeEvent } from '@rjsf/core';
 
+import { requestAPI } from './request';
 import { IDict, IFormBuild } from './types';
 
 import createModelSchema from './_schema/create-model.json';
@@ -8,7 +10,13 @@ import createCompositeModelSchema from './_schema/composition-model.json';
 import createPackageSchema from './_schema/create-package.json';
 import editModelSchema from './_schema/edit-model.json';
 import importPackageSchema from './_schema/import-package.json';
-import { getModelUnitInputsOutputs, getModelUnitParametersets, getModelUnitTestsets, getPackages } from './utils';
+import {
+  getModelHeaderData,
+  getModelUnitInputsOutputs,
+  getModelUnitParametersets,
+  getModelUnitTestsets,
+  getPackages
+} from './utils';
 
 function createFromBuild(name: string): IFormBuild {
   const form = formBuilds[name];
@@ -93,11 +101,70 @@ const formBuilds: { [name: string]: IFormBuild } = {
       }
       return createFromBuild('createCompositeModel');
     },
+    initFormData: async (data: IDict) => {
+      // If editing (data has editModelSchema.$id), load existing data
+      if (editModelSchema.$id in data) {
+        return await getModelHeaderData(
+          data[editModelSchema.$id].package,
+          data[editModelSchema.$id].model
+        );
+      }
+      return {};
+    },
     initSchema: async (data: IDict) => {
       const schema = JSONExt.deepCopy(createModelSchema) as IDict;
       const packages = await getPackages();
       schema.properties.Path.enum = packages;
+
+      // If editing, make Path and Model type readonly
+      if (editModelSchema.$id in data) {
+        schema.properties.Path.readOnly = true;
+        schema.properties['Model type'].readOnly = true;
+      }
+
       return schema;
+    }
+  },
+  editModel: {
+    schema: editModelSchema,
+    submit: null,
+    lock: true,
+    nextForm: async (data: IDict) => {
+      return createFromBuild('createModel');
+    },
+    initSchema: async (data: IDict) => {
+      const schema = JSONExt.deepCopy(editModelSchema) as IDict;
+      const currentData = data[editModelSchema.$id];
+
+      // If we already have data (navigating back), remove enums since fields will be readonly
+      if (currentData?.package && currentData?.model) {
+        delete schema.properties.package.enum;
+        delete schema.properties.model.enum;
+      } else {
+        // First time: load packages enum
+        const packages = await getPackages();
+        schema.properties.package.enum = packages;
+      }
+
+      return schema;
+    },
+    onDataChanged: async (e: IChangeEvent) => {
+      const schema = JSONExt.deepCopy(e.schema) as IDict;
+      const endpoint = 'get-models';
+      const params = new URLSearchParams({ package: e.formData.package });
+      return requestAPI<any>(`${endpoint}?${params.toString()}`, {
+        method: 'GET'
+      })
+        .then(data => {
+          schema.properties.model.enum = data.models;
+          return schema;
+        })
+        .catch(reason => {
+          console.error(
+            `An error occurred while getting the packages list.\n${reason}`
+          );
+          return null;
+        });
     }
   }
 };
@@ -106,4 +173,5 @@ export const menuItems: { [title: string]: () => IFormBuild } = {
   [createPackageSchema.title]: () => createFromBuild('createPackage'),
   [importPackageSchema.title]: () => createFromBuild('importPackage'),
   [createModelSchema.title]: () => createFromBuild('createModel'),
+  [editModelSchema.title]: () => createFromBuild('editModel')
 };

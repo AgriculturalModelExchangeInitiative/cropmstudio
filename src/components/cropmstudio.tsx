@@ -125,7 +125,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
         return;
       }
 
-      let mergedData: IDict = {};
+      const mergedData: IDict = {};
       navigation.current.forEach(
         form => (mergedData[form.schema.$id] = form.sourceData)
       );

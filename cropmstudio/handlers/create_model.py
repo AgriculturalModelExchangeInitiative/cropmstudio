@@ -72,13 +72,20 @@ class CreateModelHandler(APIHandler):
 
     def _create_unit_model(self, header, model_data):
         """
-        Create a unit model XML file
+        Create or update a unit model XML file
 
         Args:
             header: Header data from create-model.json
             model_data: Model data with inputsOutputs, parametersets, testsets
         """
-        self.log.info("Creating unit model")
+        # Check if this is an edit (presence of "Old name") or create
+        # We check for "Old name" instead of file existence to handle renames
+        is_edit = 'Old name' in header and header['Old name']
+
+        if is_edit:
+            self.log.info(f"Updating existing unit model: {header['Model name']}")
+        else:
+            self.log.info(f"Creating new unit model: {header['Model name']}")
 
         # Extract components
         inputs_outputs = model_data.get('unit/inputs-outputs', {})
@@ -95,18 +102,19 @@ class CreateModelHandler(APIHandler):
 
         self.log.debug(f"Adapted data: datas={datas.keys()}, df={df.keys()}")
 
-        # Create XML
+        # Create or update XML
         xml_writer = writeunitXML(
             datas=datas,
             df=df,
             paramsetdict=paramsetdict,
             testsetdict=testsetdict,
-            iscreate=True,
+            iscreate=not is_edit,  # False if editing, True if creating
             local=False
         )
 
         xml_writer._write()
-        self.log.info(f"Unit model '{datas['Model name']}' created successfully")
+        action = "updated" if is_edit else "created"
+        self.log.info(f"Unit model '{datas['Model name']}' {action} successfully")
 
     def _create_composition_model(self, header, model_data):
         """

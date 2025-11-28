@@ -4,7 +4,7 @@ from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 import tornado
 
-from .handlers import CreateModelHandler, CreatePackageHandler, GetPackagesHandler, ImportPackageHandler
+from .handlers import CreateModelHandler, CreatePackageHandler, GetModels, GetModelHeader, GetModelUnitInputsOutputs, GetModelUnitParametersets, GetModelUnitTestsets, GetPackagesHandler, ImportPackageHandler
 
 class HelloRouteHandler(APIHandler):
     # The following decorator should be present on all verb methods (head, get, post,
@@ -27,10 +27,20 @@ def setup_route_handlers(web_app):
 
     hello_route_pattern = url_path_join(base_url, "cropmstudio", "hello")
     handlers = [
+        # test handler, should be removed
         (hello_route_pattern, HelloRouteHandler),
+
+        # GET handlers
+        (url_path_join(base_url, "cropmstudio", "get-models"), GetModels),
+        (url_path_join(base_url, "cropmstudio", "get-model-header"), GetModelHeader),
+        (url_path_join(base_url, "cropmstudio", "get-model-unit-inputs-outputs"), GetModelUnitInputsOutputs),
+        (url_path_join(base_url, "cropmstudio", "get-model-unit-parametersets"), GetModelUnitParametersets),
+        (url_path_join(base_url, "cropmstudio", "get-model-unit-testsets"), GetModelUnitTestsets),
+        (url_path_join(base_url, "cropmstudio", "get-packages"), GetPackagesHandler),
+
+        # POST handlers
         (url_path_join(base_url, "cropmstudio", "create-model"), CreateModelHandler),
         (url_path_join(base_url, "cropmstudio", "create-package"), CreatePackageHandler),
-        (url_path_join(base_url, "cropmstudio", "get-packages"), GetPackagesHandler),
         (url_path_join(base_url, "cropmstudio", "import-package"), ImportPackageHandler)
     ]
 
