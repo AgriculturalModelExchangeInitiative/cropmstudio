@@ -21,6 +21,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   const [current, setCurrent] = React.useState<IFormBuild>();
   const [canGoBack, setCanGoBack] = React.useState<boolean>(false);
   const navigation = React.useRef<IFormBuild[]>([]);
+  const [formCounter, setFormCounter] = React.useState<number>(0);
 
   function updateCanGoBack(current: IFormBuild) {
     if (!navigation.current.length) {
@@ -40,6 +41,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
     navigation.current = [];
     setCurrent(formBuild);
     setCanGoBack(false);
+    setFormCounter(prev => prev + 1); // Force remount of form
   };
 
   /**
@@ -123,7 +125,11 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
         return;
       }
 
-      nextForm = await current.nextForm(data);
+      let mergedData: IDict = {};
+      navigation.current.forEach(
+        form => (mergedData[form.schema.$id] = form.sourceData)
+      );
+      nextForm = await current.nextForm(mergedData);
 
       // Use the one from navigation if it exists.
       const nextIndex = navigation.current.findIndex(
@@ -147,6 +153,15 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
     setCurrent(undefined);
   };
 
+  // Calculate accumulated data from all previous forms
+  const accumulatedData = React.useMemo(() => {
+    const merged: IDict = {};
+    navigation.current.forEach(
+      form => (merged[form.schema.$id] = form.sourceData)
+    );
+    return merged;
+  }, [current]);
+
   return (
     <div className={'jp-cropmstudio-container'}>
       <div className={'menu-panel'}>
@@ -156,10 +171,12 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
       <div className={'form-panel'}>
         {current ? (
           <BaseForm
+            key={`${current.schema.$id}-${formCounter}`}
             {...current}
             onSubmit={onFormSubmit}
             onCancel={onFormCancel}
             onNavigateBack={canGoBack ? onNavigateBack : null}
+            accumulatedData={accumulatedData}
           />
         ) : (
           <div className={'form-placeholder'}>No form selected.</div>

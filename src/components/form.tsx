@@ -4,9 +4,10 @@ import {
   FormComponent,
   LabIcon
 } from '@jupyterlab/ui-components';
-import { JSONExt } from '@lumino/coreutils';
+import { JSONExt, ReadonlyJSONObject } from '@lumino/coreutils';
 import { IChangeEvent } from '@rjsf/core';
-import validatorAjv8 from '@rjsf/validator-ajv8';
+import { RJSFSchema, UiSchema } from '@rjsf/utils';
+import { customizeValidator } from '@rjsf/validator-ajv8';
 import React from 'react';
 
 import { IDict, IFormBuild } from '../types';
@@ -18,11 +19,8 @@ export interface IBaseFormProps extends IFormBuild {
   onSubmit: (data: IDict<any>) => void;
   onCancel: () => void;
   onNavigateBack: ((data: IDict<any>) => void) | null;
+  accumulatedData?: IDict;
 }
-
-const WrappedFormComponent: React.FC<any> = props => {
-  return <FormComponent {...props} validator={validatorAjv8} />;
-};
 
 /**
  * The base form using the schema.
@@ -36,13 +34,18 @@ export function BaseForm(props: IBaseFormProps): JSX.Element {
     JSONExt.deepCopy(props.sourceData ?? {})
   );
 
+  // Create a fresh validator instance for each schema to avoid AJV caching issues
+  const validator = React.useMemo(() => {
+    return customizeValidator<ReadonlyJSONObject>();
+  }, [schema.$id]);
+
   /**
    * Update the schema and init form data when schema property is updated.
    */
   React.useEffect(() => {
     const formDataInitialization = () => {
       if (initFormData) {
-        initFormData().then(data => {
+        initFormData(props.accumulatedData ?? {}).then(data => {
           const newData = {
             ...data,
             ...JSONExt.deepCopy(props.sourceData ?? {})
@@ -54,7 +57,7 @@ export function BaseForm(props: IBaseFormProps): JSX.Element {
       }
     };
     if (initSchema) {
-      initSchema().then(data => {
+      initSchema(props.accumulatedData ?? {}).then(data => {
         setSchema({ ...data });
         formDataInitialization();
       });
@@ -78,17 +81,19 @@ export function BaseForm(props: IBaseFormProps): JSX.Element {
     }
   };
 
+  console.log('FORM DATA', formData);
   return (
     <div className={'form-container'}>
-      <WrappedFormComponent
+      <FormComponent
         // This key is required to properly update the form when the schema is updated.
         // Should it be fixed ?
         key={JSON.stringify(schema)}
         schema={schema}
-        uiSchema={uiSchema}
+        uiSchema={uiSchema as UiSchema<ReadonlyJSONObject, RJSFSchema, any>}
         formData={formData}
         onChange={handleChange}
         onSubmit={() => onSubmit(formData)}
+        validator={validator}
       >
         <div className={'form-buttons'}>
           {props.onNavigateBack !== null && (
@@ -109,7 +114,7 @@ export function BaseForm(props: IBaseFormProps): JSX.Element {
             {props.submit === null ? 'Continue' : 'Create'}
           </Button>
         </div>
-      </WrappedFormComponent>
+      </FormComponent>
     </div>
   );
 }

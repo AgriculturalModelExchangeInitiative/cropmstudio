@@ -33,7 +33,6 @@ class CreateModelHandler(APIHandler):
 
             # Extract header and model data
             header = data.get('model-header', {})
-            model_data = data.get('modelData', {})
             model_type = header.get('Model type', '').lower()
 
             if not model_type:
@@ -47,9 +46,9 @@ class CreateModelHandler(APIHandler):
 
             # Create model based on type
             if model_type == 'unit':
-                self._create_unit_model(header, model_data)
+                self._create_unit_model(header, data)
             elif model_type == 'composition':
-                self._create_composition_model(header, model_data)
+                self._create_composition_model(header, data)
             else:
                 self.finish(json.dumps({
                     "success": False,
@@ -82,7 +81,7 @@ class CreateModelHandler(APIHandler):
         self.log.info("Creating unit model")
 
         # Extract components
-        inputs_outputs = model_data.get('unit/inputsOutputs', {})
+        inputs_outputs = model_data.get('unit/inputs-outputs', {})
         parametersets = model_data.get('unit/parametersets', None)
         testsets = model_data.get('unit/testsets', None)
 

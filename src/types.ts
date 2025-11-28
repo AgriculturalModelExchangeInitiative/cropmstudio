@@ -37,12 +37,14 @@ export interface IFormBuild {
   sourceData?: IDict;
   /**
    * An async function returning the initial data.
+   * Receives the accumulated data from previous forms.
    */
-  initFormData?: () => Promise<IDict>;
+  initFormData?: (data: IDict) => Promise<IDict>;
   /**
    * An async function returning an updated schema, ran when initializing the form.
+   * Receives the accumulated data from previous forms.
    */
-  initSchema?: () => Promise<IDict>;
+  initSchema?: (data: IDict) => Promise<IDict>;
   /**
    * An async returning an updated schema when form data changed.
    */

@@ -1,20 +1,21 @@
 import { JSONExt } from '@lumino/coreutils';
 
-import { requestAPI } from './request';
 import { IDict, IFormBuild } from './types';
 
 import createModelSchema from './_schema/create-model.json';
 import createUnitModelSchema from './_schema/unit-model.json';
 import createCompositeModelSchema from './_schema/composition-model.json';
 import createPackageSchema from './_schema/create-package.json';
+import editModelSchema from './_schema/edit-model.json';
 import importPackageSchema from './_schema/import-package.json';
+import { getModelUnitInputsOutputs, getModelUnitParametersets, getModelUnitTestsets, getPackages } from './utils';
 
 function createFromBuild(name: string): IFormBuild {
   const form = formBuilds[name];
   return {
     ...form,
     schema: JSONExt.deepCopy(form.schema),
-    sourceData: JSONExt.deepCopy(form.sourceData ?? {}),
+    sourceData: {}, // Always start with empty data when creating from menu
     uiSchema: JSONExt.deepCopy(form.uiSchema ?? {})
   };
 }
@@ -33,19 +34,51 @@ const formBuilds: { [name: string]: IFormBuild } = {
       }
     }
   },
-  createUnitModelTestSets: {
-    schema: createUnitModelSchema.properties.testsets,
-    submit: 'create-model'
+  createUnitModelInputOutputs: {
+    schema: createUnitModelSchema.properties.inputsOutputs,
+    submit: null,
+    initFormData: async (data: IDict) => {
+      // If editing (data has editModelSchema.$id), load existing data
+      if (editModelSchema.$id in data) {
+        return await getModelUnitInputsOutputs(
+          data[editModelSchema.$id].package,
+          data[editModelSchema.$id].model
+        );
+      }
+      return {};
+    },
+    nextForm: async (data: IDict) => {
+      return createFromBuild('createUnitModelParamSets');
+    }
   },
   createUnitModelParamSets: {
     schema: createUnitModelSchema.properties.parametersets,
     submit: null,
+    initFormData: async (data: IDict) => {
+      // If editing, load existing data
+      if (editModelSchema.$id in data) {
+        return await getModelUnitParametersets(
+          data[editModelSchema.$id].package,
+          data[editModelSchema.$id].model
+        );
+      }
+      return {};
+    },
     nextForm: async (data: IDict) => createFromBuild('createUnitModelTestSets')
   },
-  createUnitModelInputOutputs: {
-    schema: createUnitModelSchema.properties.inputsOutputs,
-    submit: null,
-    nextForm: async (data: IDict) => createFromBuild('createUnitModelParamSets')
+  createUnitModelTestSets: {
+    schema: createUnitModelSchema.properties.testsets,
+    submit: 'create-model',
+    initFormData: async (data: IDict) => {
+      // If editing, load existing data
+      if (editModelSchema.$id in data) {
+        return await getModelUnitTestsets(
+          data[editModelSchema.$id].package,
+          data[editModelSchema.$id].model
+        );
+      }
+      return {};
+    }
   },
   createCompositeModel: {
     schema: createCompositeModelSchema.properties.links,
@@ -55,26 +88,16 @@ const formBuilds: { [name: string]: IFormBuild } = {
     schema: createModelSchema,
     submit: null,
     nextForm: async (data: IDict) => {
-      if (data['Model type'] === 'unit') {
+      if (data[createModelSchema.$id]['Model type'] === 'unit') {
         return createFromBuild('createUnitModelInputOutputs');
       }
       return createFromBuild('createCompositeModel');
     },
-    initSchema: async () => {
-      const schema = { ...createModelSchema } as IDict;
-      return requestAPI<any>('get-packages', {
-        method: 'GET'
-      })
-        .then(data => {
-          schema.properties.Path.enum = data.packages;
-          return schema;
-        })
-        .catch(reason => {
-          console.error(
-            `An error occurred while getting the packages list.\n${reason}`
-          );
-          return schema;
-        });
+    initSchema: async (data: IDict) => {
+      const schema = JSONExt.deepCopy(createModelSchema) as IDict;
+      const packages = await getPackages();
+      schema.properties.Path.enum = packages;
+      return schema;
     }
   }
 };
