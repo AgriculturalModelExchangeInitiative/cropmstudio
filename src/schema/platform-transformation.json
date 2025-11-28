@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "platform-transformation",
+  "title": "Platform transformation",
+  "description": "Transformation from/to platform/language",
+  "type": "object",
+  "properties": {
+    "Path": {
+      "type": "string",
+      "description": "Path to the package directory"
+    },
+    "Languages": {
+      "type": "object",
+      "title": "Programming Languages",
+      "description": "Target programming languages for transformation",
+      "properties": {
+        "Java": {
+          "type": "boolean",
+          "title": "Java",
+          "default": false
+        },
+        "CSharp": {
+          "type": "boolean",
+          "title": "C#",
+          "default": false
+        },
+        "Fortran": {
+          "type": "boolean",
+          "title": "Fortran",
+          "default": false
+        },
+        "Python": {
+          "type": "boolean",
+          "title": "Python",
+          "default": false
+        },
+        "R": {
+          "type": "boolean",
+          "title": "R",
+          "default": false
+        },
+        "Cpp": {
+          "type": "boolean",
+          "title": "C++",
+          "default": false
+        }
+      }
+    },
+    "Platforms": {
+      "type": "object",
+      "title": "Platform-Specific Formats",
+      "description": "Target platforms for transformation",
+      "properties": {
+        "Simplace": {
+          "type": "boolean",
+          "title": "Simplace",
+          "default": false
+        },
+        "Bioma": {
+          "type": "boolean",
+          "title": "Bioma",
+          "default": false
+        },
+        "Dssat": {
+          "type": "boolean",
+          "title": "Dssat",
+          "default": false
+        },
+        "OpenAlea": {
+          "type": "boolean",
+          "title": "OpenAlea",
+          "default": false
+        },
+        "Record": {
+          "type": "boolean",
+          "title": "Record",
+          "default": false
+        },
+        "Stics": {
+          "type": "boolean",
+          "title": "Stics",
+          "default": false
+        },
+        "Apsim": {
+          "type": "boolean",
+          "title": "Apsim",
+          "default": false
+        },
+        "Sirius": {
+          "type": "boolean",
+          "title": "Sirius",
+          "default": false
+        }
+      }
+    }
+  },
+  "required": ["Path"]
+}

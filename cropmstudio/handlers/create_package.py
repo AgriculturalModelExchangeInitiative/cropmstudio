@@ -13,7 +13,6 @@ class CreatePackageHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         data = self.get_json_body()
-        self.log.warning(f"DATA: {data}")
 
         missing_args = []
         for arg in ["projectName", "packageName", "description"]:

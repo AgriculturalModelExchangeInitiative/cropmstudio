@@ -3,13 +3,6 @@ import { IChangeEvent } from '@rjsf/core';
 
 import { requestAPI } from './request';
 import { IDict, IFormBuild } from './types';
-
-import createModelSchema from './_schema/create-model.json';
-import createUnitModelSchema from './_schema/unit-model.json';
-import createCompositeModelSchema from './_schema/composition-model.json';
-import createPackageSchema from './_schema/create-package.json';
-import editModelSchema from './_schema/edit-model.json';
-import importPackageSchema from './_schema/import-package.json';
 import {
   getModelHeaderData,
   getModelUnitInputsOutputs,
@@ -17,6 +10,14 @@ import {
   getModelUnitTestsets,
   getPackages
 } from './utils';
+
+import createModelSchema from './_schema/create-model.json';
+import createUnitModelSchema from './_schema/unit-model.json';
+import createCompositeModelSchema from './_schema/composition-model.json';
+import createPackageSchema from './_schema/create-package.json';
+import editModelSchema from './_schema/edit-model.json';
+import importPackageSchema from './_schema/import-package.json';
+import platformTransformSchema from './_schema/platform-transformation.json';
 
 function createFromBuild(name: string): IFormBuild {
   const form = formBuilds[name];
@@ -166,6 +167,34 @@ const formBuilds: { [name: string]: IFormBuild } = {
           return null;
         });
     }
+  },
+  crop2MLToPlatform: {
+    schema: platformTransformSchema,
+    submit: 'Crop2ML-to-platform',
+    initSchema: async (data: IDict) => {
+      const schema = JSONExt.deepCopy(platformTransformSchema) as IDict;
+      const packages = await getPackages();
+      schema.properties.Path.enum = packages;
+      return schema;
+    }
+  },
+  platformToCrop2ML: {
+    schema: platformTransformSchema,
+    submit: 'platform-to-Crop2ML',
+    initSchema: async (data: IDict) => {
+      const schema = JSONExt.deepCopy(platformTransformSchema) as IDict;
+      const packages = await getPackages();
+      schema.properties.Path.enum = packages;
+      schema.properties.Languages.properties.Java.readOnly = true;
+      schema.properties.Languages.properties.CSharp.readOnly = true;
+      schema.properties.Languages.properties.Fortran.readOnly = true;
+      schema.properties.Languages.properties.Python.readOnly = true;
+      schema.properties.Languages.properties.R.readOnly = true;
+      schema.properties.Languages.properties.Cpp.readOnly = true;
+      schema.properties.Platforms.properties.Record.readOnly = true;
+      schema.properties.Platforms.properties.Apsim.readOnly = true;
+      return schema;
+    }
   }
 };
 
@@ -173,5 +202,7 @@ export const menuItems: { [title: string]: () => IFormBuild } = {
   [createPackageSchema.title]: () => createFromBuild('createPackage'),
   [importPackageSchema.title]: () => createFromBuild('importPackage'),
   [createModelSchema.title]: () => createFromBuild('createModel'),
-  [editModelSchema.title]: () => createFromBuild('editModel')
+  [editModelSchema.title]: () => createFromBuild('editModel'),
+  ['Crop2ML to platform']: () => createFromBuild('crop2MLToPlatform'),
+  ['Platform to Crop2ML']: () => createFromBuild('platformToCrop2ML')
 };
