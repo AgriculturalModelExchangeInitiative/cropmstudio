@@ -4,7 +4,7 @@ from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 import tornado
 
-from .handlers import CreateModelHandler, CreatePackageHandler, GetModels, GetModelHeader, GetModelUnitInputsOutputs, GetModelUnitParametersets, GetModelUnitTestsets, GetPackagesHandler, ImportPackageHandler, PlatformToCrop2MLHandler, Crop2MLToPlatformHandler
+from .handlers import CreateModelHandler, CreatePackageHandler, GetModels, GetModelHeader, GetModelUnitInputsOutputs, GetModelUnitParametersets, GetModelUnitTestsets, GetPackagesHandler, ImportPackageHandler, PlatformToCrop2MLHandler, Crop2MLToPlatformHandler, DisplayModelHandler
 
 class HelloRouteHandler(APIHandler):
     # The following decorator should be present on all verb methods (head, get, post,
@@ -41,6 +41,7 @@ def setup_route_handlers(web_app):
         # POST handlers
         (url_path_join(base_url, "cropmstudio", "create-model"), CreateModelHandler),
         (url_path_join(base_url, "cropmstudio", "create-package"), CreatePackageHandler),
+        (url_path_join(base_url, "cropmstudio", "display-model"), DisplayModelHandler),
         (url_path_join(base_url, "cropmstudio", "import-package"), ImportPackageHandler),
         (url_path_join(base_url, "cropmstudio", "Crop2ML-to-platform"), Crop2MLToPlatformHandler),
         (url_path_join(base_url, "cropmstudio", "platform-to-Crop2ML"), PlatformToCrop2MLHandler)

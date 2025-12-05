@@ -15,8 +15,6 @@ class GetModelHeader(APIHandler):
     def get(self):
         path = self.get_argument('package', None)
         model = self.get_argument('model', None)
-        print(f"path {path}")
-        print(f"model {model}")
         if not path or not model or not os.path.isfile(os.path.join(path, 'crop2ml', model)):
             self.finish(json.dumps({
                 "success": False,

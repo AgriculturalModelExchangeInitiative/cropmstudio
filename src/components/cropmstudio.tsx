@@ -22,6 +22,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   const [canGoBack, setCanGoBack] = React.useState<boolean>(false);
   const navigation = React.useRef<IFormBuild[]>([]);
   const [formCounter, setFormCounter] = React.useState<number>(0);
+  const [Display, setDisplay] = React.useState<React.FC>();
 
   function updateCanGoBack(current: IFormBuild) {
     if (!navigation.current.length) {
@@ -39,6 +40,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
    */
   const onMenuClick = (formBuild: IFormBuild) => {
     navigation.current = [];
+    setDisplay(undefined);
     setCurrent(formBuild);
     setCanGoBack(false);
     setFormCounter(prev => prev + 1); // Force remount of form
@@ -110,11 +112,16 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
         // Send only the current data.
         dataToSend = data;
       }
-      const submission = await props.submit(current.submit, dataToSend);
-      if (submission.success) {
-        setCurrent(undefined);
-        navigation.current = [];
-        setCanGoBack(false);
+      const response = await props.submit(current.submit, dataToSend);
+      if (response.success) {
+        if (response.image) {
+          setDisplay(() => () => <img src={response.image} />);
+        } else {
+          setCurrent(undefined);
+          navigation.current = [];
+          setCanGoBack(false);
+          setDisplay(undefined);
+        }
       }
     } else {
       // Get the next form from the submit value or function.
@@ -168,7 +175,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
         <Menu onClick={onMenuClick} />
       </div>
 
-      <div className={'form-panel'}>
+      <div className={'main-panel'}>
         {current ? (
           <BaseForm
             key={`${current.schema.$id}-${formCounter}`}
@@ -179,8 +186,11 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
             accumulatedData={accumulatedData}
           />
         ) : (
-          <div className={'form-placeholder'}>No form selected.</div>
+          !Display && (
+            <div className={'form-placeholder'}>No form selected.</div>
+          )
         )}
+        {Display && <Display />}
       </div>
     </div>
   );

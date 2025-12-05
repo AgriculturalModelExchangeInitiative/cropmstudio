@@ -11,13 +11,14 @@ import {
   getPackages
 } from './utils';
 
-import createModelSchema from './_schema/create-model.json';
-import createUnitModelSchema from './_schema/unit-model.json';
 import createCompositeModelSchema from './_schema/composition-model.json';
+import createModelSchema from './_schema/create-model.json';
 import createPackageSchema from './_schema/create-package.json';
+import displayModelSchema from './_schema/display-model.json';
 import editModelSchema from './_schema/edit-model.json';
 import importPackageSchema from './_schema/import-package.json';
 import platformTransformSchema from './_schema/platform-transformation.json';
+import createUnitModelSchema from './_schema/unit-model.json';
 
 function createFromBuild(name: string): IFormBuild {
   const form = formBuilds[name];
@@ -195,6 +196,16 @@ const formBuilds: { [name: string]: IFormBuild } = {
       schema.properties.Platforms.properties.Apsim.readOnly = true;
       return schema;
     }
+  },
+  displayModel: {
+    schema: displayModelSchema,
+    submit: 'display-model',
+    initSchema: async (data: IDict) => {
+      const schema = JSONExt.deepCopy(displayModelSchema) as IDict;
+      const packages = await getPackages();
+      schema.properties.Path.enum = packages;
+      return schema;
+    }
   }
 };
 
@@ -204,5 +215,6 @@ export const menuItems: { [title: string]: () => IFormBuild } = {
   [createModelSchema.title]: () => createFromBuild('createModel'),
   [editModelSchema.title]: () => createFromBuild('editModel'),
   ['Crop2ML to platform']: () => createFromBuild('crop2MLToPlatform'),
-  ['Platform to Crop2ML']: () => createFromBuild('platformToCrop2ML')
+  ['Platform to Crop2ML']: () => createFromBuild('platformToCrop2ML'),
+  [displayModelSchema.title]: () => createFromBuild('displayModel')
 };
