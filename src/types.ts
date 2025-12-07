@@ -1,4 +1,5 @@
 import { IChangeEvent } from '@rjsf/core';
+import React from 'react';
 
 /**
  * A generic object type.
@@ -49,4 +50,18 @@ export interface IFormBuild {
    * An async returning an updated schema when form data changed.
    */
   onDataChanged?: (e: IChangeEvent) => Promise<IDict | null>;
+}
+
+/**
+ * A menu item can contain either a form builder, a display component, or both.
+ */
+export interface IMenuItem {
+  /**
+   * Optional function that returns a form to display.
+   */
+  formBuilder?: () => IFormBuild;
+  /**
+   * Optional React component to display directly (without a form).
+   */
+  displayComponent?: React.FC;
 }

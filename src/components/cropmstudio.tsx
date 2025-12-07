@@ -2,7 +2,7 @@ import React from 'react';
 
 import { BaseForm } from './form';
 import { Menu } from './menu';
-import { IDict, IFormBuild } from '../types';
+import { IDict, IFormBuild, IMenuItem } from '../types';
 
 /**
  * The main component properties.
@@ -36,14 +36,23 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   }
 
   /**
-   * Update the current form on menu button click, and reset the navigation.
+   * Handle menu item click.
    */
-  const onMenuClick = (formBuild: IFormBuild) => {
+  const onMenuClick = (item: IMenuItem) => {
     navigation.current = [];
-    setDisplay(undefined);
-    setCurrent(formBuild);
     setCanGoBack(false);
-    setFormCounter(prev => prev + 1); // Force remount of form
+
+    if (item.formBuilder) {
+      // Display a form
+      const formBuild = item.formBuilder();
+      setDisplay(undefined);
+      setCurrent(formBuild);
+      setFormCounter(prev => prev + 1); // Force remount of form
+    } else if (item.displayComponent) {
+      // Display a component directly
+      setCurrent(undefined);
+      setDisplay(() => item.displayComponent!);
+    }
   };
 
   /**

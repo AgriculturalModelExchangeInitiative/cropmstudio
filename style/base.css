@@ -73,3 +73,59 @@
   font-weight: var(--jp-content-heading-font-weight);
   border-bottom: 1px solid var(--jp-border-color2);
 }
+
+/* About component styles */
+.jp-cropmstudio-widget .about-container {
+  padding: 20px;
+  max-width: 800px;
+}
+
+.jp-cropmstudio-widget .about-container h2 {
+  color: var(--jp-ui-font-color0);
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 24px;
+}
+
+.jp-cropmstudio-widget .about-container h3 {
+  color: var(--jp-ui-font-color1);
+  margin-top: 20px;
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.jp-cropmstudio-widget .about-content {
+  color: var(--jp-ui-font-color1);
+  line-height: 1.6;
+}
+
+.jp-cropmstudio-widget .about-content p {
+  margin-bottom: 12px;
+}
+
+.jp-cropmstudio-widget .about-content ul,
+.jp-cropmstudio-widget .about-content ol {
+  margin-left: 20px;
+  margin-bottom: 12px;
+}
+
+.jp-cropmstudio-widget .about-content li {
+  margin-bottom: 8px;
+}
+
+.jp-cropmstudio-widget .about-content a {
+  color: var(--jp-brand-color1);
+  text-decoration: none;
+}
+
+.jp-cropmstudio-widget .about-content a:hover {
+  text-decoration: underline;
+}
+
+.jp-cropmstudio-widget .about-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--jp-border-color2);
+  color: var(--jp-ui-font-color2);
+  font-style: italic;
+}

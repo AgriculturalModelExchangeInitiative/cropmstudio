@@ -1,8 +1,9 @@
 import { JSONExt } from '@lumino/coreutils';
 import { IChangeEvent } from '@rjsf/core';
 
+import { About } from './components';
 import { requestAPI } from './request';
-import { IDict, IFormBuild } from './types';
+import { IDict, IFormBuild, IMenuItem } from './types';
 import {
   getModelHeaderData,
   getModelUnitInputsOutputs,
@@ -220,13 +221,32 @@ const formBuilds: { [name: string]: IFormBuild } = {
   }
 };
 
-export const menuItems: { [title: string]: () => IFormBuild } = {
-  [createPackageSchema.title]: () => createFromBuild('createPackage'),
-  [importPackageSchema.title]: () => createFromBuild('importPackage'),
-  [createModelSchema.title]: () => createFromBuild('createModel'),
-  [editModelSchema.title]: () => createFromBuild('editModel'),
-  ['Crop2ML to platform']: () => createFromBuild('crop2MLToPlatform'),
-  ['Platform to Crop2ML']: () => createFromBuild('platformToCrop2ML'),
-  [displayModelSchema.title]: () => createFromBuild('displayModel'),
-  [downloadPackageSchema.title]: () => createFromBuild('downloadPackage')
+export const menuItems: { [title: string]: IMenuItem } = {
+  [createPackageSchema.title]: {
+    formBuilder: () => createFromBuild('createPackage')
+  },
+  [importPackageSchema.title]: {
+    formBuilder: () => createFromBuild('importPackage')
+  },
+  [createModelSchema.title]: {
+    formBuilder: () => createFromBuild('createModel')
+  },
+  [editModelSchema.title]: {
+    formBuilder: () => createFromBuild('editModel')
+  },
+  'Crop2ML to platform': {
+    formBuilder: () => createFromBuild('crop2MLToPlatform')
+  },
+  'Platform to Crop2ML': {
+    formBuilder: () => createFromBuild('platformToCrop2ML')
+  },
+  [displayModelSchema.title]: {
+    formBuilder: () => createFromBuild('displayModel')
+  },
+  [downloadPackageSchema.title]: {
+    formBuilder: () => createFromBuild('downloadPackage')
+  },
+  About: {
+    displayComponent: About
+  }
 };
