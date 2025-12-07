@@ -115,8 +115,18 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
       const response = await props.submit(current.submit, dataToSend);
       if (response.success) {
         if (response.image) {
+          // Display image
           setDisplay(() => () => <img src={response.image} />);
+        } else if (response.download && response.filename) {
+          // Handle file download
+          const link = document.createElement('a');
+          link.href = response.download;
+          link.download = response.filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
         } else {
+          // Default: reset the form
           setCurrent(undefined);
           navigation.current = [];
           setCanGoBack(false);

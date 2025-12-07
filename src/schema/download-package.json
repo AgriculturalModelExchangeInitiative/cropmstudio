@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "download-package",
+  "title": "Download Package",
+  "description": "Schema for downloading a package as a ZIP file",
+  "type": "object",
+  "properties": {
+    "Path": {
+      "type": "string",
+      "description": "Path to the package directory to download"
+    }
+  },
+  "required": [
+    "Path"
+  ]
+}

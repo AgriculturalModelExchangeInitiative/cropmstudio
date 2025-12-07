@@ -15,6 +15,7 @@ import createCompositeModelSchema from './_schema/composition-model.json';
 import createModelSchema from './_schema/create-model.json';
 import createPackageSchema from './_schema/create-package.json';
 import displayModelSchema from './_schema/display-model.json';
+import downloadPackageSchema from './_schema/download-package.json';
 import editModelSchema from './_schema/edit-model.json';
 import importPackageSchema from './_schema/import-package.json';
 import platformTransformSchema from './_schema/platform-transformation.json';
@@ -206,6 +207,16 @@ const formBuilds: { [name: string]: IFormBuild } = {
       schema.properties.Path.enum = packages;
       return schema;
     }
+  },
+  downloadPackage: {
+    schema: downloadPackageSchema,
+    submit: 'download-package',
+    initSchema: async (data: IDict) => {
+      const schema = JSONExt.deepCopy(downloadPackageSchema) as IDict;
+      const packages = await getPackages();
+      schema.properties.Path.enum = packages;
+      return schema;
+    }
   }
 };
 
@@ -216,5 +227,6 @@ export const menuItems: { [title: string]: () => IFormBuild } = {
   [editModelSchema.title]: () => createFromBuild('editModel'),
   ['Crop2ML to platform']: () => createFromBuild('crop2MLToPlatform'),
   ['Platform to Crop2ML']: () => createFromBuild('platformToCrop2ML'),
-  [displayModelSchema.title]: () => createFromBuild('displayModel')
+  [displayModelSchema.title]: () => createFromBuild('displayModel'),
+  [downloadPackageSchema.title]: () => createFromBuild('downloadPackage')
 };
