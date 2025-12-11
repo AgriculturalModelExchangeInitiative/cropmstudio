@@ -11,7 +11,7 @@ export interface IMenuProps {
   /**
    * The function called when clicking a menu button.
    */
-  onClick: (item: IMenuItem) => void;
+  onClick: (title: string, item: IMenuItem) => void;
 }
 
 /**
@@ -25,7 +25,7 @@ export function Menu(props: IMenuProps): JSX.Element {
           <Button
             className={'jp-mod-styled'}
             key={title}
-            onClick={() => props.onClick(menuItems[title])}
+            onClick={() => props.onClick(title, menuItems[title])}
             title={title}
           >
             {title}

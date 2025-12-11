@@ -18,6 +18,7 @@ export type CropmstudioProps = {
  * The main component including the menu and the form.
  */
 export function Cropmstudio(props: CropmstudioProps): JSX.Element {
+  const [formTitle, setFormTitle] = React.useState<string>();
   const [current, setCurrent] = React.useState<IFormBuild>();
   const [canGoBack, setCanGoBack] = React.useState<boolean>(false);
   const navigation = React.useRef<IFormBuild[]>([]);
@@ -38,9 +39,10 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   /**
    * Handle menu item click.
    */
-  const onMenuClick = (item: IMenuItem) => {
+  const onMenuClick = (title: string, item: IMenuItem) => {
     navigation.current = [];
     setCanGoBack(false);
+    setFormTitle(title);
 
     if (item.formBuilder) {
       // Display a form
@@ -136,6 +138,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
           document.body.removeChild(link);
         } else {
           // Default: reset the form
+          setFormTitle(undefined);
           setCurrent(undefined);
           navigation.current = [];
           setCanGoBack(false);
@@ -196,14 +199,17 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
 
       <div className={'main-panel'}>
         {current ? (
-          <BaseForm
-            key={`${current.schema.$id}-${formCounter}`}
-            {...current}
-            onSubmit={onFormSubmit}
-            onCancel={onFormCancel}
-            onNavigateBack={canGoBack ? onNavigateBack : null}
-            accumulatedData={accumulatedData}
-          />
+          <>
+            {formTitle && <h2>{formTitle}</h2>}
+            <BaseForm
+              key={`${current.schema.$id}-${formCounter}`}
+              {...current}
+              onSubmit={onFormSubmit}
+              onCancel={onFormCancel}
+              onNavigateBack={canGoBack ? onNavigateBack : null}
+              accumulatedData={accumulatedData}
+            />
+          </>
         ) : (
           !Display && (
             <div className={'form-placeholder'}>No form selected.</div>
