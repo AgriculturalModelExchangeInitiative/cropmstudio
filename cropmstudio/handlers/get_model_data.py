@@ -39,7 +39,7 @@ class GetModelHeader(APIHandler):
             "Authors": xml.description.Authors,
             "Institution": xml.description.Institution,
             "Reference": xml.description.Reference,
-            "ExtendedDescription": xml.description.ExtendedDescription
+            "ExtendedDescription": xml.description.ExtendedDescription or xml.description.Abstract
         }
 
         self.finish(json.dumps({
@@ -111,19 +111,20 @@ class GetModelUnitInputsOutputs(APIHandler):
                         "Type": "output",
                         "Name": output_var.name,
                         "Description": output_var.description,
-                        "InputType": output_var.inputtype,
                         "Category": output_var.variablecategory if hasattr(output_var, "variablecategory") else output_var.parametercategory,
                         "DataType": output_var.datatype,
                         "Unit": output_var.unit
                     }
                     # Add optional fields only if they have values
+                    if hasattr(output_var, "inputtype") and output_var.inputtype:
+                        var_data["InputType"] = output_var.inputtype
                     if hasattr(output_var, "len") and output_var.len:
                         var_data["Len"] = output_var.len
-                    if output_var.default:
+                    if hasattr(output_var, "default") and output_var.default:
                         var_data["Default"] = output_var.default
-                    if output_var.min is not None and str(output_var.min):
+                    if hasattr(output_var, "min") and output_var.min is not None and str(output_var.min):
                         var_data["Min"] = str(output_var.min)
-                    if output_var.max is not None and str(output_var.max):
+                    if hasattr(output_var, "max") and output_var.max is not None and str(output_var.max):
                         var_data["Max"] = str(output_var.max)
                     if hasattr(output_var, "uri") and output_var.uri:
                         var_data["Uri"] = output_var.uri

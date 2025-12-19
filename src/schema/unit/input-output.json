@@ -76,7 +76,6 @@
     "Type",
     "Name",
     "Description",
-    "InputType",
     "Category",
     "DataType",
     "Unit"
@@ -98,35 +97,20 @@
       "if": {
         "properties": {
           "Type": {
-            "enum": ["input"]
+            "enum": ["input", "input & output"]
           }
         }
       },
       "then": {
-        "required": ["Default"]
+        "required": ["Default", "InputType"]
       }
     },
     {
       "if": {
         "properties": {
-          "Type": {
-            "enum": ["output"]
-          }
-        }
-      },
-      "then": {
-        "not": {
-          "required": ["Default"]
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "InputType": {
-            "const": "parameter"
-          }
-        }
+          "InputType": { "const": "parameter" }
+        },
+        "required": ["InputType"]
       },
       "then": {
         "properties": {
@@ -139,15 +123,38 @@
     {
       "if": {
         "properties": {
-          "InputType": {
-            "const": "variable"
-          }
-        }
+          "InputType": { "const": "variable" }
+        },
+        "required": ["InputType"]
       },
       "then": {
         "properties": {
           "Category": {
             "enum": ["state", "rate", "auxiliary", "exogenous"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "not": {
+          "required": ["InputType"]
+        }
+      },
+      "then": {
+        "properties": {
+          "Category": {
+            "enum": [
+              "constant",
+              "species",
+              "genotypic",
+              "soil",
+              "private",
+              "state",
+              "rate",
+              "auxiliary",
+              "exogenous"
+            ]
           }
         }
       }
