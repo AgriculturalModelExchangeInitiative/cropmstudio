@@ -2,6 +2,7 @@ import React from 'react';
 
 import { BaseForm } from './form';
 import { Menu } from './menu';
+import { menuItems } from '../menuItems';
 import { IDict, IFormBuild, IMenuItem } from '../types';
 
 /**
@@ -12,6 +13,10 @@ export type CropmstudioProps = {
    * The function called when submitting a form.
    */
   submit: (endpoint: string, data: IDict<any>) => Promise<any>;
+  /**
+   * The landing page.
+   */
+  default?: string;
 };
 
 /**
@@ -25,6 +30,18 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   const [formCounter, setFormCounter] = React.useState<number>(0);
   const [Display, setDisplay] = React.useState<React.FC>();
 
+  /**
+   * Set the landing page on first load.
+   */
+  React.useEffect(() => {
+    if (props.default && menuItems[props.default]) {
+      onMenuClick(props.default, menuItems[props.default]);
+    }
+  }, []);
+
+  /**
+   * Check if it is possible to go back from this form.
+   */
   function updateCanGoBack(current: IFormBuild) {
     if (!navigation.current.length) {
       setCanGoBack(false);
@@ -180,6 +197,11 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   const onFormCancel = () => {
     navigation.current = [];
     setCurrent(undefined);
+
+    // Restore the landing page.
+    if (props.default && menuItems[props.default]) {
+      onMenuClick(props.default, menuItems[props.default]);
+    }
   };
 
   // Calculate accumulated data from all previous forms

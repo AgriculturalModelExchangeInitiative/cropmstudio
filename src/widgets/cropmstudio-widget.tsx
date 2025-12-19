@@ -21,7 +21,10 @@ export class CropmstudioWidget extends ReactWidget {
   /**
    * Function calling the RestAPI when submitting the form.
    */
-  private _submit = (endpoint: string, data: IDict<any>): Promise<any> => {
+  private _submit = async (
+    endpoint: string,
+    data: IDict<any>
+  ): Promise<any> => {
     return requestAPI<any>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data)
@@ -39,6 +42,6 @@ export class CropmstudioWidget extends ReactWidget {
   };
 
   render(): JSX.Element {
-    return <Cropmstudio submit={this._submit} />;
+    return <Cropmstudio submit={this._submit} default="About" />;
   }
 }
