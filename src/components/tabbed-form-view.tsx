@@ -158,9 +158,6 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
     return className;
   };
 
-  // const activeTab = tabs[activeTabIndex];
-  // const activeSchemaId = activeTab.formBuild.schema.$id;
-
   return (
     <div className="jp-cropmstudio-tabbed-form">
       {/* Tab bar */}
