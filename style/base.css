@@ -201,10 +201,18 @@
 }
 
 .jp-cropmstudio-widget .jp-cropmstudio-tabbed-form-buttons {
+  position: sticky;
+  bottom: 0;
   margin-top: 20px;
-  padding-top: 16px;
+  padding: 16px 12px 12px 12px;
   border-top: solid 1px var(--jp-border-color2);
+  background: var(--jp-layout-color1);
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  z-index: 1;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-tabbed-form-buttons button.jp-mod-styled {
+  line-height: unset;
 }
