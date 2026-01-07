@@ -90,8 +90,13 @@ jobs:
         sudo rm -rf $(which node)
         sudo rm -rf $(which node)
 
-        pip install "jupyterlab>=4.0.0,<5" cropmstudio*.whl
+        # TODO Install PyCrop2ML from PyPI when published
+        python -m pip install path.py six nbformat Cython nbsphinx networkx graphviz  pydot pyyaml unyt sphinx cookiecutter pytest antlr4-python3-runtime
+        python -m pip install pandas xmlformatter
+        python -m pip install git+https://github.com/openalea/core
+        python -m pip install git+https://github.com/AgriculturalModelExchangeInitiative/PyCrop2ML.git@py313
 
+        pip install "jupyterlab>=4.0.0,<5" cropmstudio*.whl
 
         jupyter server extension list
         jupyter server extension list 2>&1 | grep -ie "cropmstudio.*OK"
@@ -123,6 +128,13 @@ jobs:
     - name: Install the extension
       run: |
         set -eux
+
+        # TODO Install PyCrop2ML from PyPI when published
+        python -m pip install path.py six nbformat Cython nbsphinx networkx graphviz  pydot pyyaml unyt sphinx cookiecutter pytest antlr4-python3-runtime
+        python -m pip install pandas xmlformatter
+        python -m pip install git+https://github.com/openalea/core
+        python -m pip install git+https://github.com/AgriculturalModelExchangeInitiative/PyCrop2ML.git@py313
+
         python -m pip install "jupyterlab>=4.0.0,<5" cropmstudio*.whl
 
     - name: Install dependencies
