@@ -72,14 +72,7 @@
       "description": "Optional URI reference"
     }
   },
-  "required": [
-    "Type",
-    "Name",
-    "Description",
-    "Category",
-    "DataType",
-    "Unit"
-  ],
+  "required": ["Type", "Name", "Description", "Category", "DataType", "Unit"],
   "allOf": [
     {
       "if": {
