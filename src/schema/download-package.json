@@ -10,7 +10,5 @@
       "description": "Path to the package directory to download"
     }
   },
-  "required": [
-    "Path"
-  ]
+  "required": ["Path"]
 }
