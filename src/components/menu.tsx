@@ -1,7 +1,7 @@
 import { Button } from '@jupyterlab/ui-components';
 import React from 'react';
 
-import { menuItems } from '../menuItems';
+import { menuItems } from '../menu-items';
 import { IMenuItem } from '../types';
 
 /**

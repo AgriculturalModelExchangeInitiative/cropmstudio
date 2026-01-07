@@ -10,12 +10,12 @@ import { RJSFSchema, UiSchema } from '@rjsf/utils';
 import { customizeValidator } from '@rjsf/validator-ajv8';
 import React from 'react';
 
-import { IDict, IFormBuild } from '../types';
+import { IDict, IFormBuilder } from '../types';
 
 /**
  * The base form properties.
  */
-export interface IBaseFormProps extends IFormBuild {
+export interface IBaseFormProps extends IFormBuilder {
   onSubmit: (data: IDict<any>) => void;
   onCancel: () => void;
   onNavigateBack: ((data: IDict<any>) => void) | null;

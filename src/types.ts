@@ -9,9 +9,27 @@ export interface IDict<T = any> {
 }
 
 /**
+ * A menu item can contain a form builder, a form sequence, or a display component.
+ */
+export interface IMenuItem {
+  /**
+   * Optional function that returns a single form to display.
+   */
+  formBuilder?: IFormBuilder;
+  /**
+   * Optional function that returns a sequence of forms to display as tabs.
+   */
+  formSequence?: IFormSequence;
+  /**
+   * Optional React component to display directly (without a form).
+   */
+  displayComponent?: React.FC;
+}
+
+/**
  * The data required to build the form.
  */
-export interface IFormBuild {
+export interface IFormBuilder {
   /**
    * The submit endpoint.
    */
@@ -72,24 +90,6 @@ export interface IFormSequence {
 }
 
 /**
- * A menu item can contain a form builder, a form sequence, or a display component.
- */
-export interface IMenuItem {
-  /**
-   * Optional function that returns a single form to display.
-   */
-  formBuilder?: IFormBuild;
-  /**
-   * Optional function that returns a sequence of forms to display as tabs.
-   */
-  formSequence?: IFormSequence;
-  /**
-   * Optional React component to display directly (without a form).
-   */
-  displayComponent?: React.FC;
-}
-
-/**
  * A single tab definition for the tabbed form view.
  */
 export interface ITabFormItem {
@@ -100,7 +100,7 @@ export interface ITabFormItem {
   /**
    * The form definition for this tab.
    */
-  formBuild: IFormBuild;
+  formBuild: IFormBuilder;
   /**
    * Whether this tab is optional (affects validation).
    */

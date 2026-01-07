@@ -1,9 +1,8 @@
 import { JSONExt } from '@lumino/coreutils';
 import { IChangeEvent } from '@rjsf/core';
 
-import { About } from './components';
 import { requestAPI } from './request';
-import { IDict, IFormBuild, IMenuItem } from './types';
+import { IDict, IFormBuilder } from './types';
 import {
   getModelHeaderData,
   getModelUnitInputsOutputs,
@@ -22,8 +21,11 @@ import importPackageSchema from './_schema/import-package.json';
 import platformTransformSchema from './_schema/platform-transformation.json';
 import createUnitModelSchema from './_schema/unit-model.json';
 
-function createFromBuild(name: string, sourceData?: IDict): IFormBuild {
-  const form = formBuilds[name];
+export function createFormBuilder(
+  name: string,
+  sourceData?: IDict
+): IFormBuilder {
+  const form = formBuilders[name];
   return {
     ...form,
     schema: JSONExt.deepCopy(form.schema),
@@ -32,7 +34,7 @@ function createFromBuild(name: string, sourceData?: IDict): IFormBuild {
   };
 }
 
-const formBuilds: { [name: string]: IFormBuild } = {
+const formBuilders: { [name: string]: IFormBuilder } = {
   createPackage: {
     schema: createPackageSchema,
     submit: 'create-package'
@@ -60,7 +62,7 @@ const formBuilds: { [name: string]: IFormBuild } = {
       return {};
     },
     next: async (data: IDict) => ({
-      formBuilder: createFromBuild('createUnitModelParamSets')
+      formBuilder: createFormBuilder('createUnitModelParamSets')
     })
   },
   createUnitModelParamSets: {
@@ -77,7 +79,7 @@ const formBuilds: { [name: string]: IFormBuild } = {
       return {};
     },
     next: async (data: IDict) => ({
-      formBuilder: createFromBuild('createUnitModelTestSets')
+      formBuilder: createFormBuilder('createUnitModelTestSets')
     })
   },
   createUnitModelTestSets: {
@@ -104,8 +106,8 @@ const formBuilds: { [name: string]: IFormBuild } = {
     next: async (data: IDict) => ({
       formBuilder:
         data[createModelSchema.$id]['Model type'] === 'unit'
-          ? createFromBuild('createUnitModelInputOutputs')
-          : createFromBuild('createCompositeModel')
+          ? createFormBuilder('createUnitModelInputOutputs')
+          : createFormBuilder('createCompositeModel')
     }),
     initFormData: async (data: IDict) => {
       // If editing (data has editModelSchema.$id), load existing data
@@ -143,20 +145,20 @@ const formBuilds: { [name: string]: IFormBuild } = {
           tabs: [
             {
               label: 'Model Info',
-              formBuild: createFromBuild('createModel')
+              formBuild: createFormBuilder('createModel')
             },
             {
               label: 'Inputs/Outputs',
-              formBuild: createFromBuild('createUnitModelInputOutputs')
+              formBuild: createFormBuilder('createUnitModelInputOutputs')
             },
             {
               label: 'Parameters',
-              formBuild: createFromBuild('createUnitModelParamSets'),
+              formBuild: createFormBuilder('createUnitModelParamSets'),
               optional: true
             },
             {
               label: 'Test Sets',
-              formBuild: createFromBuild('createUnitModelTestSets'),
+              formBuild: createFormBuilder('createUnitModelTestSets'),
               optional: true
             }
           ],
@@ -246,74 +248,5 @@ const formBuilds: { [name: string]: IFormBuild } = {
       schema.properties.Path.enum = packages;
       return schema;
     }
-  }
-};
-
-export const menuItems: { [title: string]: IMenuItem } = {
-  [createPackageSchema.title]: {
-    formBuilder: createFromBuild('createPackage')
-  },
-  [importPackageSchema.title]: {
-    formBuilder: createFromBuild('importPackage')
-  },
-  'Create unit model': {
-    formSequence: {
-      tabs: [
-        {
-          label: 'Model Info',
-          formBuild: createFromBuild('createModel', { 'Model type': 'unit' })
-        },
-        {
-          label: 'Inputs/Outputs',
-          formBuild: createFromBuild('createUnitModelInputOutputs')
-        },
-        {
-          label: 'Parameters',
-          formBuild: createFromBuild('createUnitModelParamSets'),
-          optional: true
-        },
-        {
-          label: 'Test Sets',
-          formBuild: createFromBuild('createUnitModelTestSets'),
-          optional: true
-        }
-      ],
-      submitEndpoint: 'create-model'
-    }
-  },
-  'Create composite model': {
-    formSequence: {
-      tabs: [
-        {
-          label: 'Model Info',
-          formBuild: createFromBuild('createModel', {
-            'Model type': 'composition'
-          })
-        },
-        {
-          label: 'Composite Model',
-          formBuild: createFromBuild('createCompositeModel')
-        }
-      ],
-      submitEndpoint: 'create-model'
-    }
-  },
-  [editModelSchema.title]: {
-    formBuilder: createFromBuild('editModel')
-  },
-  'Crop2ML to platform': {
-    formBuilder: createFromBuild('crop2MLToPlatform')
-  },
-  'Platform to Crop2ML': {
-    formBuilder: createFromBuild('platformToCrop2ML')
-  },
-  [displayModelSchema.title]: {
-    formBuilder: createFromBuild('displayModel')
-  },
-  [downloadPackageSchema.title]: {
-    formBuilder: createFromBuild('downloadPackage')
-  },
-  About: {
-    displayComponent: About
   }
 };

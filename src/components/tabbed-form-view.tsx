@@ -56,17 +56,11 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
   // Track validation errors for each tab
   const [tabErrors, setTabErrors] = React.useState<IDict<boolean>>({});
 
-  // Track which tabs have been visited (to show completion status)
-  const [visitedTabs, setVisitedTabs] = React.useState<Set<number>>(
-    new Set([0])
-  );
-
   /**
    * Handle tab click to switch between forms.
    */
   const handleTabClick = (index: number) => {
     setActiveTabIndex(index);
-    setVisitedTabs(prev => new Set(prev).add(index));
   };
 
   /**
@@ -142,7 +136,6 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
     const schemaId = tab.formBuild.schema.$id;
     const isActive = index === activeTabIndex;
     const hasError = tabErrors[schemaId] === true;
-    const isVisited = visitedTabs.has(index);
 
     let className = 'jp-cropmstudio-tab';
     if (isActive) {
@@ -150,9 +143,6 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
     }
     if (hasError) {
       className += ' jp-cropmstudio-tab-error';
-    }
-    if (!isVisited) {
-      className += ' jp-cropmstudio-tab-unvisited';
     }
 
     return className;

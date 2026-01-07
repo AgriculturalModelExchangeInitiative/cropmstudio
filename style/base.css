@@ -177,10 +177,6 @@
   border-bottom-color: var(--jp-error-color1);
 }
 
-.jp-cropmstudio-widget .jp-cropmstudio-tab-unvisited {
-  opacity: 0.6;
-}
-
 .jp-cropmstudio-widget .jp-cropmstudio-tab-optional {
   font-size: 11px;
   color: var(--jp-ui-font-color2);

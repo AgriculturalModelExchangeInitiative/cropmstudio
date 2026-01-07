@@ -3,8 +3,8 @@ import React from 'react';
 import { BaseForm } from './form';
 import { Menu } from './menu';
 import { TabbedFormView } from './tabbed-form-view';
-import { menuItems } from '../menuItems';
-import { IDict, IFormBuild, IFormSequence, IMenuItem } from '../types';
+import { menuItems } from '../menu-items';
+import { IDict, IFormBuilder, IFormSequence, IMenuItem } from '../types';
 
 /**
  * The main component properties.
@@ -25,10 +25,10 @@ export type CropmstudioProps = {
  */
 export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   const [formTitle, setFormTitle] = React.useState<string>();
-  const [current, setCurrent] = React.useState<IFormBuild>();
+  const [current, setCurrent] = React.useState<IFormBuilder>();
   const [currentSequence, setCurrentSequence] = React.useState<IFormSequence>();
   const [canGoBack, setCanGoBack] = React.useState<boolean>(false);
-  const navigation = React.useRef<IFormBuild[]>([]);
+  const navigation = React.useRef<IFormBuilder[]>([]);
   const [formCounter, setFormCounter] = React.useState<number>(0);
   const [Display, setDisplay] = React.useState<React.FC>();
 
@@ -74,20 +74,6 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   };
 
   /**
-   * Check if it is possible to go back from this form.
-   */
-  function updateCanGoBack(current: IFormBuild) {
-    if (!navigation.current.length) {
-      setCanGoBack(false);
-    } else {
-      const currentIndex = navigation.current.findIndex(
-        form => form.schema.$id === current.schema.$id
-      );
-      setCanGoBack(currentIndex !== 0);
-    }
-  }
-
-  /**
    * Handle menu item click.
    */
   const onMenuClick = async (title: string, item: IMenuItem) => {
@@ -118,6 +104,20 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   };
 
   /**
+   * Check if it is possible to go back from this form.
+   */
+  function updateCanGoBack(current: IFormBuilder) {
+    if (!navigation.current.length) {
+      setCanGoBack(false);
+    } else {
+      const currentIndex = navigation.current.findIndex(
+        form => form.schema.$id === current.schema.$id
+      );
+      setCanGoBack(currentIndex !== 0);
+    }
+  }
+
+  /**
    * Navigating back to the previous form.
    */
   const onNavigateBack = (data: IDict<any>) => {
@@ -133,7 +133,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
     const currentIndex = navigation.current.findIndex(
       form => form.schema.$id === current.schema.$id
     );
-    let previousForm: IFormBuild;
+    let previousForm: IFormBuilder;
     if (currentIndex !== -1) {
       previousForm = navigation.current[currentIndex - 1];
       navigation.current[currentIndex] = { ...current, sourceData: data };
@@ -222,17 +222,6 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
     }
   };
 
-  const onFormCancel = () => {
-    navigation.current = [];
-    setCurrent(undefined);
-    setCurrentSequence(undefined);
-
-    // Restore the landing page.
-    if (props.default && menuItems[props.default]) {
-      onMenuClick(props.default, menuItems[props.default]);
-    }
-  };
-
   /**
    * Handle submission of a tabbed form sequence.
    */
@@ -243,6 +232,20 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
     }
 
     await postData(currentSequence.submitEndpoint, allData);
+  };
+
+  /**
+   * Handle cancelling a form or sequence.
+   */
+  const onCancel = () => {
+    navigation.current = [];
+    setCurrent(undefined);
+    setCurrentSequence(undefined);
+
+    // Restore the landing page.
+    if (props.default && menuItems[props.default]) {
+      onMenuClick(props.default, menuItems[props.default]);
+    }
   };
 
   // Calculate accumulated data from all previous forms
@@ -269,7 +272,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
               tabs={currentSequence.tabs}
               submitEndpoint={currentSequence.submitEndpoint}
               onSubmit={onSequenceSubmit}
-              onCancel={onFormCancel}
+              onCancel={onCancel}
               accumulatedData={accumulatedData}
             />
           </>
@@ -280,7 +283,7 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
               key={`${current.schema.$id}-${formCounter}`}
               {...current}
               onSubmit={onFormSubmit}
-              onCancel={onFormCancel}
+              onCancel={onCancel}
               onNavigateBack={canGoBack ? onNavigateBack : null}
               accumulatedData={accumulatedData}
             />
