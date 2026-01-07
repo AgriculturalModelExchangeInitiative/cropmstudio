@@ -3,8 +3,8 @@ import React from 'react';
 import { BaseForm } from './form';
 import { Menu } from './menu';
 import { TabbedFormView } from './tabbed-form-view';
-import { menuItems } from '../menu-items';
-import { IDict, IFormBuilder, IFormSequence, IMenuItem } from '../types';
+import { createMenuItem } from '../menu-items';
+import { IDict, IFormBuilder, IFormSequence } from '../types';
 
 /**
  * The main component properties.
@@ -36,8 +36,8 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
    * Set the landing page on first load.
    */
   React.useEffect(() => {
-    if (props.default && menuItems[props.default]) {
-      onMenuClick(props.default, menuItems[props.default]);
+    if (props.default) {
+      onMenuClick(props.default);
     }
   }, []);
 
@@ -76,9 +76,18 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   /**
    * Handle menu item click.
    */
-  const onMenuClick = async (title: string, item: IMenuItem) => {
+  const onMenuClick = async (title: string) => {
+    const item = createMenuItem(title);
     navigation.current = [];
     setCanGoBack(false);
+
+    if (!item) {
+      setCurrent(undefined);
+      setCurrentSequence(undefined);
+      setDisplay(undefined);
+      console.error(`There is no form associated to the button ${title}`);
+      return;
+    }
     setFormTitle(title);
 
     if (item.formSequence) {
@@ -243,8 +252,8 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
     setCurrentSequence(undefined);
 
     // Restore the landing page.
-    if (props.default && menuItems[props.default]) {
-      onMenuClick(props.default, menuItems[props.default]);
+    if (props.default) {
+      onMenuClick(props.default);
     }
   };
 

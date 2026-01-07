@@ -1,8 +1,7 @@
 import { Button } from '@jupyterlab/ui-components';
 import React from 'react';
 
-import { menuItems } from '../menu-items';
-import { IMenuItem } from '../types';
+import { getMenuItemTitles } from '../menu-items';
 
 /**
  * The menu properties.
@@ -11,7 +10,7 @@ export interface IMenuProps {
   /**
    * The function called when clicking a menu button.
    */
-  onClick: (title: string, item: IMenuItem) => void;
+  onClick: (title: string) => void;
 }
 
 /**
@@ -21,11 +20,11 @@ export function Menu(props: IMenuProps): JSX.Element {
   return (
     <div>
       <div className={'menu-container'}>
-        {Object.keys(menuItems).map(title => (
+        {getMenuItemTitles().map(title => (
           <Button
             className={'jp-mod-styled'}
             key={title}
-            onClick={() => props.onClick(title, menuItems[title])}
+            onClick={() => props.onClick(title)}
             title={title}
           >
             {title}

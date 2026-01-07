@@ -145,20 +145,20 @@ const formBuilders: { [name: string]: IFormBuilder } = {
           tabs: [
             {
               label: 'Model Info',
-              formBuild: createFormBuilder('createModel')
+              formBuilder: createFormBuilder('createModel')
             },
             {
               label: 'Inputs/Outputs',
-              formBuild: createFormBuilder('createUnitModelInputOutputs')
+              formBuilder: createFormBuilder('createUnitModelInputOutputs')
             },
             {
               label: 'Parameters',
-              formBuild: createFormBuilder('createUnitModelParamSets'),
+              formBuilder: createFormBuilder('createUnitModelParamSets'),
               optional: true
             },
             {
               label: 'Test Sets',
-              formBuild: createFormBuilder('createUnitModelTestSets'),
+              formBuilder: createFormBuilder('createUnitModelTestSets'),
               optional: true
             }
           ],
@@ -169,7 +169,6 @@ const formBuilders: { [name: string]: IFormBuilder } = {
     initSchema: async (data: IDict) => {
       const schema = JSONExt.deepCopy(editModelSchema) as IDict;
       const currentData = data[editModelSchema.$id];
-
       // If we already have data (navigating back), remove enums since fields will be readonly
       if (currentData?.package && currentData?.model) {
         delete schema.properties.package.enum;

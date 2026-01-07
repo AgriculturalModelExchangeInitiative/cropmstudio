@@ -9,6 +9,45 @@ export interface IDict<T = any> {
 }
 
 /**
+ * Menu item definition that references form builders by name.
+ */
+export type IMenuItemDefinition =
+  | IFormDefinition
+  | ISequenceDefinition
+  | IComponentDefinition;
+
+/**
+ * Form menu item definition.
+ */
+interface IFormDefinition {
+  type: 'form';
+  formName: string;
+  sourceData?: IDict;
+}
+
+/**
+ * Form sequence menu item definition.
+ */
+interface ISequenceDefinition {
+  type: 'sequence';
+  tabs: Array<{
+    label: string;
+    formName: string;
+    sourceData?: IDict;
+    optional?: boolean;
+  }>;
+  submitEndpoint: string;
+}
+
+/**
+ * Component menu item definition.
+ */
+interface IComponentDefinition {
+  type: 'component';
+  component: React.FC;
+}
+
+/**
  * A menu item can contain a form builder, a form sequence, or a display component.
  */
 export interface IMenuItem {
@@ -100,7 +139,7 @@ export interface ITabFormItem {
   /**
    * The form definition for this tab.
    */
-  formBuild: IFormBuilder;
+  formBuilder: IFormBuilder;
   /**
    * Whether this tab is optional (affects validation).
    */

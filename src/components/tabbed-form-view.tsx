@@ -47,8 +47,10 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
   const [formsData, setFormsData] = React.useState<IDict<IDict>>(() => {
     const initialData: IDict<IDict> = {};
     tabs.forEach(tab => {
-      const schemaId = tab.formBuild.schema.$id;
-      initialData[schemaId] = JSONExt.deepCopy(tab.formBuild.sourceData ?? {});
+      const schemaId = tab.formBuilder.schema.$id;
+      initialData[schemaId] = JSONExt.deepCopy(
+        tab.formBuilder.sourceData ?? {}
+      );
     });
     return initialData;
   });
@@ -79,7 +81,7 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
   const validateForm = (tab: ITabFormItem): boolean => {
     // For now, we'll use a simple heuristic:
     // Check if required fields in the schema are present in the form data
-    const schema = tab.formBuild.schema;
+    const schema = tab.formBuilder.schema;
     const data = formsData[schema.$id];
     if (tab.optional) {
       return true; // Optional forms are always considered valid
@@ -100,7 +102,7 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
     tabs.forEach((tab, index) => {
       const isValid = validateForm(tab);
       if (!isValid) {
-        errors[tab.formBuild.schema.$id] = true;
+        errors[tab.formBuilder.schema.$id] = true;
         hasErrors = true;
       }
     });
@@ -110,7 +112,7 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
     if (hasErrors) {
       // Find first tab with error and switch to it
       const firstErrorIndex = tabs.findIndex(
-        tab => errors[tab.formBuild.schema.$id]
+        tab => errors[tab.formBuilder.schema.$id]
       );
       if (firstErrorIndex !== -1) {
         setActiveTabIndex(firstErrorIndex);
@@ -121,7 +123,7 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
     // All forms are valid, collect all data
     const allData: IDict = { ...accumulatedData };
     tabs.forEach(tab => {
-      const schemaId = tab.formBuild.schema.$id;
+      const schemaId = tab.formBuilder.schema.$id;
       allData[schemaId] = formsData[schemaId];
     });
 
@@ -133,7 +135,7 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
    */
   const getTabClass = (index: number): string => {
     const tab = tabs[index];
-    const schemaId = tab.formBuild.schema.$id;
+    const schemaId = tab.formBuilder.schema.$id;
     const isActive = index === activeTabIndex;
     const hasError = tabErrors[schemaId] === true;
 
@@ -162,7 +164,7 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
             {tab.optional && (
               <span className="jp-cropmstudio-tab-optional">(optional)</span>
             )}
-            {tabErrors[tab.formBuild.schema.$id] && (
+            {tabErrors[tab.formBuilder.schema.$id] && (
               <span className="jp-cropmstudio-tab-error-indicator">⚠</span>
             )}
           </button>
@@ -171,7 +173,7 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
 
       {/* Active form content */}
       {tabs.map((tab, index) => {
-        const schemaId = tab.formBuild.schema.$id;
+        const schemaId = tab.formBuilder.schema.$id;
         return (
           <div
             className="jp-cropmstudio-tab-content"
@@ -183,7 +185,7 @@ export function TabbedFormView(props: ITabbedFormViewProps): JSX.Element {
               formData={formsData[schemaId]}
               accumulatedData={{ ...accumulatedData, ...formsData }}
               onChange={handleFormChange}
-              liveValidate={tabErrors[tab.formBuild.schema.$id]}
+              liveValidate={tabErrors[tab.formBuilder.schema.$id]}
             />
           </div>
         );
@@ -218,10 +220,10 @@ interface ITabFormContentProps {
 
 function TabFormContent(props: ITabFormContentProps): JSX.Element {
   const { tab, formData, accumulatedData, onChange, liveValidate } = props;
-  const { formBuild } = tab;
+  const { formBuilder } = tab;
 
   const [schema, setSchema] = React.useState<IDict>(
-    JSONExt.deepCopy(formBuild.schema)
+    JSONExt.deepCopy(formBuilder.schema)
   );
   const [currentFormData, setCurrentFormData] = React.useState<IDict>(
     JSONExt.deepCopy(formData)
@@ -232,29 +234,29 @@ function TabFormContent(props: ITabFormContentProps): JSX.Element {
    */
   React.useEffect(() => {
     const initializeForm = async () => {
-      let initializedSchema = JSONExt.deepCopy(formBuild.schema);
+      let initializedSchema = JSONExt.deepCopy(formBuilder.schema);
       let initializedData = JSONExt.deepCopy(formData);
 
       // Initialize schema if initSchema is provided
-      if (formBuild.initSchema) {
-        initializedSchema = await formBuild.initSchema(accumulatedData);
+      if (formBuilder.initSchema) {
+        initializedSchema = await formBuilder.initSchema(accumulatedData);
         setSchema(initializedSchema);
       }
 
       // Initialize form data if initFormData is provided
-      if (formBuild.initFormData) {
-        const loadedData = await formBuild.initFormData(accumulatedData);
+      if (formBuilder.initFormData) {
+        const loadedData = await formBuilder.initFormData(accumulatedData);
         initializedData = {
           ...loadedData,
           ...initializedData
         };
         setCurrentFormData(initializedData);
-        onChange(formBuild.schema.$id, initializedData);
+        onChange(formBuilder.schema.$id, initializedData);
       }
     };
 
     initializeForm();
-  }, [formBuild.schema.$id]);
+  }, [formBuilder.schema.$id]);
 
   /**
    * Handle form data changes.
@@ -262,7 +264,7 @@ function TabFormContent(props: ITabFormContentProps): JSX.Element {
   const handleChange = async (e: IChangeEvent) => {
     const newData = { ...e.formData };
     setCurrentFormData(newData);
-    onChange(formBuild.schema.$id, newData);
+    onChange(formBuilder.schema.$id, newData);
     return null;
   };
 
@@ -271,7 +273,7 @@ function TabFormContent(props: ITabFormContentProps): JSX.Element {
   return (
     <div className="jp-cropmstudio-tab-form-wrapper">
       <BaseForm
-        {...formBuild}
+        {...formBuilder}
         schema={schema}
         sourceData={currentFormData}
         onDataChanged={handleChange}

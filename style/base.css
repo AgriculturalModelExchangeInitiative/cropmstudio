@@ -213,6 +213,8 @@
   z-index: 1;
 }
 
-.jp-cropmstudio-widget .jp-cropmstudio-tabbed-form-buttons button.jp-mod-styled {
+.jp-cropmstudio-widget
+  .jp-cropmstudio-tabbed-form-buttons
+  button.jp-mod-styled {
   line-height: unset;
 }
