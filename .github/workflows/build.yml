@@ -26,6 +26,9 @@ jobs:
         python -m pip install -U "jupyterlab>=4.0.0,<5"
 
         # TODO Install PyCrop2ML from PyPI when published
+        python -m pip install path.py six nbformat Cython nbsphinx networkx graphviz  pydot pyyaml unyt sphinx cookiecutter pytest antlr4-python3-runtime
+        python -m pip install pandas xmlformatter
+        python -m pip install git+https://github.com/openalea/core
         python -m pip install git+https://github.com/AgriculturalModelExchangeInitiative/PyCrop2ML.git@py313
 
     - name: Lint the extension
