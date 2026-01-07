@@ -10,16 +10,24 @@ import { RJSFSchema, UiSchema } from '@rjsf/utils';
 import { customizeValidator } from '@rjsf/validator-ajv8';
 import React from 'react';
 
-import { IDict, IFormBuild } from '../types';
+import { IDict, IFormBuilder } from '../types';
 
 /**
  * The base form properties.
  */
-export interface IBaseFormProps extends IFormBuild {
+export interface IBaseFormProps extends IFormBuilder {
   onSubmit: (data: IDict<any>) => void;
   onCancel: () => void;
   onNavigateBack: ((data: IDict<any>) => void) | null;
   accumulatedData?: IDict;
+  /**
+   * Whether to hide the form buttons (for use in tabbed forms).
+   */
+  hideButtons?: boolean;
+  /**
+   * Whether to validate the form in live.
+   */
+  liveValidate?: boolean;
 }
 
 /**
@@ -81,7 +89,6 @@ export function BaseForm(props: IBaseFormProps): JSX.Element {
     }
   };
 
-  console.log('FORM DATA', formData);
   return (
     <div className={'form-container'}>
       <FormComponent
@@ -94,26 +101,29 @@ export function BaseForm(props: IBaseFormProps): JSX.Element {
         onChange={handleChange}
         onSubmit={() => onSubmit(formData)}
         validator={validator}
+        liveValidate={props.liveValidate}
       >
-        <div className={'form-buttons'}>
-          {props.onNavigateBack !== null && (
-            <Button onClick={() => props.onNavigateBack!(formData)}>
-              <LabIcon.resolveReact
-                icon={caretDownEmptyIcon}
-                className={'navigate-back'}
-              />
+        {!props.hideButtons && (
+          <div className={'form-buttons'}>
+            {props.onNavigateBack !== null && (
+              <Button onClick={() => props.onNavigateBack!(formData)}>
+                <LabIcon.resolveReact
+                  icon={caretDownEmptyIcon}
+                  className={'navigate-back'}
+                />
+              </Button>
+            )}
+            <Button
+              className={'jp-mod-styled jp-mod-reject'}
+              onClick={props.onCancel}
+            >
+              Cancel
             </Button>
-          )}
-          <Button
-            className={'jp-mod-styled jp-mod-reject'}
-            onClick={props.onCancel}
-          >
-            Cancel
-          </Button>
-          <Button className={'jp-mod-styled jp-mod-accept'} type={'submit'}>
-            {props.submit === null ? 'Continue' : 'Create'}
-          </Button>
-        </div>
+            <Button className={'jp-mod-styled jp-mod-accept'} type={'submit'}>
+              {props.submit === null ? 'Continue' : 'Create'}
+            </Button>
+          </div>
+        )}
       </FormComponent>
     </div>
   );

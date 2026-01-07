@@ -1,9 +1,8 @@
 import { JSONExt } from '@lumino/coreutils';
 import { IChangeEvent } from '@rjsf/core';
 
-import { About } from './components';
 import { requestAPI } from './request';
-import { IDict, IFormBuild, IMenuItem } from './types';
+import { IDict, IFormBuilder } from './types';
 import {
   getModelHeaderData,
   getModelUnitInputsOutputs,
@@ -22,17 +21,20 @@ import importPackageSchema from './_schema/import-package.json';
 import platformTransformSchema from './_schema/platform-transformation.json';
 import createUnitModelSchema from './_schema/unit-model.json';
 
-function createFromBuild(name: string): IFormBuild {
-  const form = formBuilds[name];
+export function createFormBuilder(
+  name: string,
+  sourceData?: IDict
+): IFormBuilder {
+  const form = formBuilders[name];
   return {
     ...form,
     schema: JSONExt.deepCopy(form.schema),
-    sourceData: {}, // Always start with empty data when creating from menu
+    sourceData: sourceData ?? {},
     uiSchema: JSONExt.deepCopy(form.uiSchema ?? {})
   };
 }
 
-const formBuilds: { [name: string]: IFormBuild } = {
+const formBuilders: { [name: string]: IFormBuilder } = {
   createPackage: {
     schema: createPackageSchema,
     submit: 'create-package'
@@ -59,9 +61,9 @@ const formBuilds: { [name: string]: IFormBuild } = {
       }
       return {};
     },
-    nextForm: async (data: IDict) => {
-      return createFromBuild('createUnitModelParamSets');
-    }
+    next: async (data: IDict) => ({
+      formBuilder: createFormBuilder('createUnitModelParamSets')
+    })
   },
   createUnitModelParamSets: {
     schema: createUnitModelSchema.properties.parametersets,
@@ -76,7 +78,9 @@ const formBuilds: { [name: string]: IFormBuild } = {
       }
       return {};
     },
-    nextForm: async (data: IDict) => createFromBuild('createUnitModelTestSets')
+    next: async (data: IDict) => ({
+      formBuilder: createFormBuilder('createUnitModelTestSets')
+    })
   },
   createUnitModelTestSets: {
     schema: createUnitModelSchema.properties.testsets,
@@ -99,12 +103,12 @@ const formBuilds: { [name: string]: IFormBuild } = {
   createModel: {
     schema: createModelSchema,
     submit: null,
-    nextForm: async (data: IDict) => {
-      if (data[createModelSchema.$id]['Model type'] === 'unit') {
-        return createFromBuild('createUnitModelInputOutputs');
-      }
-      return createFromBuild('createCompositeModel');
-    },
+    next: async (data: IDict) => ({
+      formBuilder:
+        data[createModelSchema.$id]['Model type'] === 'unit'
+          ? createFormBuilder('createUnitModelInputOutputs')
+          : createFormBuilder('createCompositeModel')
+    }),
     initFormData: async (data: IDict) => {
       // If editing (data has editModelSchema.$id), load existing data
       if (editModelSchema.$id in data) {
@@ -120,10 +124,12 @@ const formBuilds: { [name: string]: IFormBuild } = {
       const packages = await getPackages();
       schema.properties.Path.enum = packages;
 
-      // If editing, make Path and Model type readonly
+      // Make model type readonly, otherwise the tabs are not relevant
+      schema.properties['Model type'].readOnly = true;
+
+      // If editing, make Path readonly
       if (editModelSchema.$id in data) {
         schema.properties.Path.readOnly = true;
-        schema.properties['Model type'].readOnly = true;
       }
 
       return schema;
@@ -133,13 +139,36 @@ const formBuilds: { [name: string]: IFormBuild } = {
     schema: editModelSchema,
     submit: null,
     lock: true,
-    nextForm: async (data: IDict) => {
-      return createFromBuild('createModel');
+    next: async (data: IDict) => {
+      return {
+        formSequence: {
+          tabs: [
+            {
+              label: 'Model Info',
+              formBuilder: createFormBuilder('createModel')
+            },
+            {
+              label: 'Inputs/Outputs',
+              formBuilder: createFormBuilder('createUnitModelInputOutputs')
+            },
+            {
+              label: 'Parameters',
+              formBuilder: createFormBuilder('createUnitModelParamSets'),
+              optional: true
+            },
+            {
+              label: 'Test Sets',
+              formBuilder: createFormBuilder('createUnitModelTestSets'),
+              optional: true
+            }
+          ],
+          submitEndpoint: 'create-model'
+        }
+      };
     },
     initSchema: async (data: IDict) => {
       const schema = JSONExt.deepCopy(editModelSchema) as IDict;
       const currentData = data[editModelSchema.$id];
-
       // If we already have data (navigating back), remove enums since fields will be readonly
       if (currentData?.package && currentData?.model) {
         delete schema.properties.package.enum;
@@ -218,35 +247,5 @@ const formBuilds: { [name: string]: IFormBuild } = {
       schema.properties.Path.enum = packages;
       return schema;
     }
-  }
-};
-
-export const menuItems: { [title: string]: IMenuItem } = {
-  [createPackageSchema.title]: {
-    formBuilder: () => createFromBuild('createPackage')
-  },
-  [importPackageSchema.title]: {
-    formBuilder: () => createFromBuild('importPackage')
-  },
-  [createModelSchema.title]: {
-    formBuilder: () => createFromBuild('createModel')
-  },
-  [editModelSchema.title]: {
-    formBuilder: () => createFromBuild('editModel')
-  },
-  'Crop2ML to platform': {
-    formBuilder: () => createFromBuild('crop2MLToPlatform')
-  },
-  'Platform to Crop2ML': {
-    formBuilder: () => createFromBuild('platformToCrop2ML')
-  },
-  [displayModelSchema.title]: {
-    formBuilder: () => createFromBuild('displayModel')
-  },
-  [downloadPackageSchema.title]: {
-    formBuilder: () => createFromBuild('downloadPackage')
-  },
-  About: {
-    displayComponent: About
   }
 };

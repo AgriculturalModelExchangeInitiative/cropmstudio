@@ -129,3 +129,92 @@
   color: var(--jp-ui-font-color2);
   font-style: italic;
 }
+
+/* Tabbed form view styles */
+.jp-cropmstudio-widget .jp-cropmstudio-tabbed-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-tab-bar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid var(--jp-border-color2);
+  margin-bottom: 16px;
+  padding-bottom: 0;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-tab {
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--jp-ui-font-color1);
+  cursor: pointer;
+  font-size: var(--jp-ui-font-size1);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-tab:hover {
+  background: var(--jp-layout-color2);
+  color: var(--jp-ui-font-color0);
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-tab-active {
+  color: var(--jp-brand-color1);
+  border-bottom-color: var(--jp-brand-color1);
+  font-weight: 600;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-tab-error {
+  color: var(--jp-error-color1);
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-tab-error.jp-cropmstudio-tab-active {
+  border-bottom-color: var(--jp-error-color1);
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-tab-optional {
+  font-size: 11px;
+  color: var(--jp-ui-font-color2);
+  margin-left: 6px;
+  font-weight: normal;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-tab-error-indicator {
+  margin-left: 6px;
+  color: var(--jp-warn-color1);
+  font-size: 14px;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-tab-content {
+  flex: 1;
+  overflow: auto;
+  padding: 0 12px;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-tab-form-wrapper {
+  max-width: 100%;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-tabbed-form-buttons {
+  position: sticky;
+  bottom: 0;
+  margin-top: 20px;
+  padding: 16px 12px 12px;
+  border-top: solid 1px var(--jp-border-color2);
+  background: var(--jp-layout-color1);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  z-index: 1;
+}
+
+.jp-cropmstudio-widget
+  .jp-cropmstudio-tabbed-form-buttons
+  button.jp-mod-styled {
+  line-height: unset;
+}
