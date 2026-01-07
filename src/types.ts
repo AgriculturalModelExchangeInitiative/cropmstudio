@@ -27,7 +27,7 @@ export interface IFormBuild {
   /**
    * The next form, only if submit is null or empty.
    */
-  nextForm?: (data: IDict) => Promise<IFormBuild>;
+  next?: (data: IDict) => Promise<IMenuItem>;
   /**
    * The UI schema.
    */
@@ -53,15 +53,56 @@ export interface IFormBuild {
 }
 
 /**
- * A menu item can contain either a form builder, a display component, or both.
+ * Defines a sequence of forms displayed as tabs.
+ */
+export interface IFormSequence {
+  /**
+   * Array of tab definitions.
+   */
+  tabs: ITabFormItem[];
+  /**
+   * The submit endpoint for the final submission.
+   */
+  submitEndpoint: string;
+  /**
+   * Optional function to build the sequence dynamically.
+   * Used for conditional sequences (e.g., unit vs composition models).
+   */
+  sequenceBuilder?: () => Promise<IFormSequence>;
+}
+
+/**
+ * A menu item can contain a form builder, a form sequence, or a display component.
  */
 export interface IMenuItem {
   /**
-   * Optional function that returns a form to display.
+   * Optional function that returns a single form to display.
    */
-  formBuilder?: () => IFormBuild;
+  formBuilder?: IFormBuild;
+  /**
+   * Optional function that returns a sequence of forms to display as tabs.
+   */
+  formSequence?: IFormSequence;
   /**
    * Optional React component to display directly (without a form).
    */
   displayComponent?: React.FC;
+}
+
+/**
+ * A single tab definition for the tabbed form view.
+ */
+export interface ITabFormItem {
+  /**
+   * The tab label displayed in the tab bar.
+   */
+  label: string;
+  /**
+   * The form definition for this tab.
+   */
+  formBuild: IFormBuild;
+  /**
+   * Whether this tab is optional (affects validation).
+   */
+  optional?: boolean;
 }

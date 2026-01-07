@@ -2,8 +2,9 @@ import React from 'react';
 
 import { BaseForm } from './form';
 import { Menu } from './menu';
+import { TabbedFormView } from './tabbed-form-view';
 import { menuItems } from '../menuItems';
-import { IDict, IFormBuild, IMenuItem } from '../types';
+import { IDict, IFormBuild, IFormSequence, IMenuItem } from '../types';
 
 /**
  * The main component properties.
@@ -25,6 +26,7 @@ export type CropmstudioProps = {
 export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   const [formTitle, setFormTitle] = React.useState<string>();
   const [current, setCurrent] = React.useState<IFormBuild>();
+  const [currentSequence, setCurrentSequence] = React.useState<IFormSequence>();
   const [canGoBack, setCanGoBack] = React.useState<boolean>(false);
   const navigation = React.useRef<IFormBuild[]>([]);
   const [formCounter, setFormCounter] = React.useState<number>(0);
@@ -38,6 +40,38 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
       onMenuClick(props.default, menuItems[props.default]);
     }
   }, []);
+
+  /**
+   * Submit the form and handle the response.
+   *
+   * @param endpoint - the endpoint of the post request.
+   * @param data - the data to post.
+   */
+  const postData = async (endpoint: string, data: IDict) => {
+    const response = await props.submit(endpoint, data);
+    if (response.success) {
+      if (response.image) {
+        // Display image
+        setDisplay(() => () => <img src={response.image} />);
+      } else if (response.download && response.filename) {
+        // Handle file download
+        const link = document.createElement('a');
+        link.href = response.download;
+        link.download = response.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        // Default: reset the form
+        navigation.current = [];
+        setFormTitle(undefined);
+        setCurrentSequence(undefined);
+        setCurrent(undefined);
+        setCanGoBack(false);
+        setDisplay(undefined);
+      }
+    }
+  };
 
   /**
    * Check if it is possible to go back from this form.
@@ -56,20 +90,29 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
   /**
    * Handle menu item click.
    */
-  const onMenuClick = (title: string, item: IMenuItem) => {
+  const onMenuClick = async (title: string, item: IMenuItem) => {
     navigation.current = [];
     setCanGoBack(false);
     setFormTitle(title);
 
-    if (item.formBuilder) {
-      // Display a form
-      const formBuild = item.formBuilder();
+    if (item.formSequence) {
+      // Display a tabbed form sequence
+      const sequence = item.formSequence;
       setDisplay(undefined);
+      setCurrent(undefined);
+      setCurrentSequence(sequence);
+      setFormCounter(prev => prev + 1); // Force remount
+    } else if (item.formBuilder) {
+      // Display a single form
+      const formBuild = item.formBuilder;
+      setDisplay(undefined);
+      setCurrentSequence(undefined);
       setCurrent(formBuild);
       setFormCounter(prev => prev + 1); // Force remount of form
     } else if (item.displayComponent) {
       // Display a component directly
       setCurrent(undefined);
+      setCurrentSequence(undefined);
       setDisplay(() => item.displayComponent!);
     }
   };
@@ -140,34 +183,10 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
         // Send only the current data.
         dataToSend = data;
       }
-      const response = await props.submit(current.submit, dataToSend);
-      if (response.success) {
-        if (response.image) {
-          // Display image
-          setDisplay(() => () => <img src={response.image} />);
-        } else if (response.download && response.filename) {
-          // Handle file download
-          const link = document.createElement('a');
-          link.href = response.download;
-          link.download = response.filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        } else {
-          // Default: reset the form
-          setFormTitle(undefined);
-          setCurrent(undefined);
-          navigation.current = [];
-          setCanGoBack(false);
-          setDisplay(undefined);
-        }
-      }
+      await postData(current.submit, dataToSend);
     } else {
-      // Get the next form from the submit value or function.
-      let nextForm: IFormBuild;
-
-      if (!current.nextForm) {
-        console.error('There is no submit endpoint and no next form.');
+      if (!current.next) {
+        console.error('There is no submit endpoint and no next form/sequence.');
         return;
       }
 
@@ -175,33 +194,55 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
       navigation.current.forEach(
         form => (mergedData[form.schema.$id] = form.sourceData)
       );
-      nextForm = await current.nextForm(mergedData);
 
-      // Use the one from navigation if it exists.
-      const nextIndex = navigation.current.findIndex(
-        form => form.schema.$id === nextForm.schema.$id
-      );
+      const next = await current.next(mergedData);
+      if (next.formBuilder) {
+        let nextForm = next.formBuilder;
 
-      if (nextIndex !== -1) {
-        if (nextForm.schema.$id === navigation.current[nextIndex].schema.$id) {
-          nextForm = navigation.current[nextIndex];
-        } else {
-          navigation.current[nextIndex] = nextForm;
+        // Use the one from navigation if it exists.
+        const nextIndex = navigation.current.findIndex(
+          form => form.schema.$id === nextForm.schema.$id
+        );
+
+        if (nextIndex !== -1) {
+          if (
+            nextForm.schema.$id === navigation.current[nextIndex].schema.$id
+          ) {
+            nextForm = navigation.current[nextIndex];
+          } else {
+            navigation.current[nextIndex] = nextForm;
+          }
         }
+        setCurrent({ ...nextForm });
+        updateCanGoBack(nextForm);
+      } else if (next.formSequence) {
+        setCurrent(undefined);
+        setCurrentSequence(next.formSequence);
       }
-      setCurrent({ ...nextForm });
-      updateCanGoBack(nextForm);
     }
   };
 
   const onFormCancel = () => {
     navigation.current = [];
     setCurrent(undefined);
+    setCurrentSequence(undefined);
 
     // Restore the landing page.
     if (props.default && menuItems[props.default]) {
       onMenuClick(props.default, menuItems[props.default]);
     }
+  };
+
+  /**
+   * Handle submission of a tabbed form sequence.
+   */
+  const onSequenceSubmit = async (allData: IDict<any>) => {
+    if (!currentSequence) {
+      console.error('There is no current sequence to submit.');
+      return;
+    }
+
+    await postData(currentSequence.submitEndpoint, allData);
   };
 
   // Calculate accumulated data from all previous forms
@@ -220,7 +261,19 @@ export function Cropmstudio(props: CropmstudioProps): JSX.Element {
       </div>
 
       <div className={'main-panel'}>
-        {current ? (
+        {currentSequence ? (
+          <>
+            {formTitle && <h2>{formTitle}</h2>}
+            <TabbedFormView
+              key={`sequence-${formCounter}`}
+              tabs={currentSequence.tabs}
+              submitEndpoint={currentSequence.submitEndpoint}
+              onSubmit={onSequenceSubmit}
+              onCancel={onFormCancel}
+              accumulatedData={accumulatedData}
+            />
+          </>
+        ) : current ? (
           <>
             {formTitle && <h2>{formTitle}</h2>}
             <BaseForm

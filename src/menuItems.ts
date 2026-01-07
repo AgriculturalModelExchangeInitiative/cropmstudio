@@ -22,12 +22,12 @@ import importPackageSchema from './_schema/import-package.json';
 import platformTransformSchema from './_schema/platform-transformation.json';
 import createUnitModelSchema from './_schema/unit-model.json';
 
-function createFromBuild(name: string): IFormBuild {
+function createFromBuild(name: string, sourceData?: IDict): IFormBuild {
   const form = formBuilds[name];
   return {
     ...form,
     schema: JSONExt.deepCopy(form.schema),
-    sourceData: {}, // Always start with empty data when creating from menu
+    sourceData: sourceData ?? {},
     uiSchema: JSONExt.deepCopy(form.uiSchema ?? {})
   };
 }
@@ -59,9 +59,9 @@ const formBuilds: { [name: string]: IFormBuild } = {
       }
       return {};
     },
-    nextForm: async (data: IDict) => {
-      return createFromBuild('createUnitModelParamSets');
-    }
+    next: async (data: IDict) => ({
+      formBuilder: createFromBuild('createUnitModelParamSets')
+    })
   },
   createUnitModelParamSets: {
     schema: createUnitModelSchema.properties.parametersets,
@@ -76,7 +76,9 @@ const formBuilds: { [name: string]: IFormBuild } = {
       }
       return {};
     },
-    nextForm: async (data: IDict) => createFromBuild('createUnitModelTestSets')
+    next: async (data: IDict) => ({
+      formBuilder: createFromBuild('createUnitModelTestSets')
+    })
   },
   createUnitModelTestSets: {
     schema: createUnitModelSchema.properties.testsets,
@@ -99,12 +101,12 @@ const formBuilds: { [name: string]: IFormBuild } = {
   createModel: {
     schema: createModelSchema,
     submit: null,
-    nextForm: async (data: IDict) => {
-      if (data[createModelSchema.$id]['Model type'] === 'unit') {
-        return createFromBuild('createUnitModelInputOutputs');
-      }
-      return createFromBuild('createCompositeModel');
-    },
+    next: async (data: IDict) => ({
+      formBuilder:
+        data[createModelSchema.$id]['Model type'] === 'unit'
+          ? createFromBuild('createUnitModelInputOutputs')
+          : createFromBuild('createCompositeModel')
+    }),
     initFormData: async (data: IDict) => {
       // If editing (data has editModelSchema.$id), load existing data
       if (editModelSchema.$id in data) {
@@ -120,10 +122,12 @@ const formBuilds: { [name: string]: IFormBuild } = {
       const packages = await getPackages();
       schema.properties.Path.enum = packages;
 
-      // If editing, make Path and Model type readonly
+      // Make model type readonly, otherwise the tabs are not relevant
+      schema.properties['Model type'].readOnly = true;
+
+      // If editing, make Path readonly
       if (editModelSchema.$id in data) {
         schema.properties.Path.readOnly = true;
-        schema.properties['Model type'].readOnly = true;
       }
 
       return schema;
@@ -133,8 +137,32 @@ const formBuilds: { [name: string]: IFormBuild } = {
     schema: editModelSchema,
     submit: null,
     lock: true,
-    nextForm: async (data: IDict) => {
-      return createFromBuild('createModel');
+    next: async (data: IDict) => {
+      return {
+        formSequence: {
+          tabs: [
+            {
+              label: 'Model Info',
+              formBuild: createFromBuild('createModel')
+            },
+            {
+              label: 'Inputs/Outputs',
+              formBuild: createFromBuild('createUnitModelInputOutputs')
+            },
+            {
+              label: 'Parameters',
+              formBuild: createFromBuild('createUnitModelParamSets'),
+              optional: true
+            },
+            {
+              label: 'Test Sets',
+              formBuild: createFromBuild('createUnitModelTestSets'),
+              optional: true
+            }
+          ],
+          submitEndpoint: 'create-model'
+        }
+      };
     },
     initSchema: async (data: IDict) => {
       const schema = JSONExt.deepCopy(editModelSchema) as IDict;
@@ -223,28 +251,67 @@ const formBuilds: { [name: string]: IFormBuild } = {
 
 export const menuItems: { [title: string]: IMenuItem } = {
   [createPackageSchema.title]: {
-    formBuilder: () => createFromBuild('createPackage')
+    formBuilder: createFromBuild('createPackage')
   },
   [importPackageSchema.title]: {
-    formBuilder: () => createFromBuild('importPackage')
+    formBuilder: createFromBuild('importPackage')
   },
-  [createModelSchema.title]: {
-    formBuilder: () => createFromBuild('createModel')
+  'Create unit model': {
+    formSequence: {
+      tabs: [
+        {
+          label: 'Model Info',
+          formBuild: createFromBuild('createModel', { 'Model type': 'unit' })
+        },
+        {
+          label: 'Inputs/Outputs',
+          formBuild: createFromBuild('createUnitModelInputOutputs')
+        },
+        {
+          label: 'Parameters',
+          formBuild: createFromBuild('createUnitModelParamSets'),
+          optional: true
+        },
+        {
+          label: 'Test Sets',
+          formBuild: createFromBuild('createUnitModelTestSets'),
+          optional: true
+        }
+      ],
+      submitEndpoint: 'create-model'
+    }
+  },
+  'Create composite model': {
+    formSequence: {
+      tabs: [
+        {
+          label: 'Model Info',
+          formBuild: createFromBuild('createModel', {
+            'Model type': 'composition'
+          })
+        },
+        {
+          label: 'Composite Model',
+          formBuild: createFromBuild('createCompositeModel')
+        }
+      ],
+      submitEndpoint: 'create-model'
+    }
   },
   [editModelSchema.title]: {
-    formBuilder: () => createFromBuild('editModel')
+    formBuilder: createFromBuild('editModel')
   },
   'Crop2ML to platform': {
-    formBuilder: () => createFromBuild('crop2MLToPlatform')
+    formBuilder: createFromBuild('crop2MLToPlatform')
   },
   'Platform to Crop2ML': {
-    formBuilder: () => createFromBuild('platformToCrop2ML')
+    formBuilder: createFromBuild('platformToCrop2ML')
   },
   [displayModelSchema.title]: {
-    formBuilder: () => createFromBuild('displayModel')
+    formBuilder: createFromBuild('displayModel')
   },
   [downloadPackageSchema.title]: {
-    formBuilder: () => createFromBuild('downloadPackage')
+    formBuilder: createFromBuild('downloadPackage')
   },
   About: {
     displayComponent: About
