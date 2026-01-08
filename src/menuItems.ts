@@ -1,7 +1,7 @@
 import { JSONExt } from '@lumino/coreutils';
 import { IChangeEvent } from '@rjsf/core';
 
-import { About } from './components';
+import { About, InputsTableField } from './components';
 import { requestAPI } from './request';
 import { IDict, IFormBuild, IMenuItem } from './types';
 import {
@@ -27,8 +27,7 @@ function createFromBuild(name: string): IFormBuild {
   return {
     ...form,
     schema: JSONExt.deepCopy(form.schema),
-    sourceData: {}, // Always start with empty data when creating from menu
-    uiSchema: JSONExt.deepCopy(form.uiSchema ?? {})
+    sourceData: {} // Always start with empty data when creating from menu
   };
 }
 
@@ -49,6 +48,11 @@ const formBuilds: { [name: string]: IFormBuild } = {
   createUnitModelInputOutputs: {
     schema: createUnitModelSchema.properties.inputsOutputs,
     submit: null,
+    uiSchema: {
+      Inputs: {
+        'ui:field': InputsTableField
+      }
+    },
     initFormData: async (data: IDict) => {
       // If editing (data has editModelSchema.$id), load existing data
       if (editModelSchema.$id in data) {
