@@ -4,36 +4,14 @@ import React from 'react';
 import DataGrid, { Column } from 'react-data-grid';
 
 /**
- * Input/Output row structure based on the schema
+ * Generic row structure - dynamically typed based on schema.
+ * All properties come from the schema at runtime.
  */
-interface IInputOutputRow {
-  Type: 'input' | 'output' | 'input & output';
-  Name: string;
-  Description: string;
-  InputType?: 'variable' | 'parameter';
-  Category: string;
-  DataType:
-    | 'DOUBLE'
-    | 'DOUBLELIST'
-    | 'DOUBLEARRAY'
-    | 'INT'
-    | 'INTLIST'
-    | 'INTARRAY'
-    | 'STRING'
-    | 'STRINGLIST'
-    | 'STRINGARRAY'
-    | 'BOOLEAN'
-    | 'DATE'
-    | 'DATELIST'
-    | 'DATEARRAY';
-  Len?: string;
-  Default?: string;
-  Min?: string;
-  Max?: string;
-  Unit: string;
-  Uri?: string;
-  // Internal ID for tracking
+interface ITableRow {
+  // Internal ID for tracking in react-data-grid
   _id: string;
+  // All other properties are dynamic based on schema
+  [key: string]: any;
 }
 
 /**
@@ -55,8 +33,8 @@ function EnumEditor({
   onRowChange,
   onClose,
   options
-}: IEditorProps<IInputOutputRow> & { options: string[] }) {
-  const value = row[column.key as keyof IInputOutputRow] as string;
+}: IEditorProps<ITableRow> & { options: string[] }) {
+  const value = row[column.key as string] as string;
 
   return (
     <select
@@ -87,8 +65,8 @@ function TextEditor({
   column,
   onRowChange,
   onClose
-}: IEditorProps<IInputOutputRow>) {
-  const value = row[column.key as keyof IInputOutputRow] as string;
+}: IEditorProps<ITableRow>) {
+  const value = row[column.key as string] as string;
 
   return (
     <input
@@ -115,162 +93,140 @@ export function InputsTableField(props: FieldProps): JSX.Element | null {
   const { formData = [], onChange, schema, uiSchema, name, required } = props;
 
   // Create rows with internal IDs for tracking
-  const rows: IInputOutputRow[] = React.useMemo(() => {
+  const rows: ITableRow[] = React.useMemo(() => {
     return (formData as any[]).map((item, index) => ({
       ...item,
       _id: `row-${index}-${item.Name || 'unnamed'}`
     }));
   }, [formData]);
 
-  // Get enum values from the schema
+  // Extract schema for items
   const itemSchema = (schema.items as any) || {};
-  const typeEnum = itemSchema.properties?.Type?.enum || [
-    'input',
-    'output',
-    'input & output'
-  ];
-  const inputTypeEnum = itemSchema.properties?.InputType?.enum || [
-    'variable',
-    'parameter'
-  ];
-  const dataTypeEnum = itemSchema.properties?.DataType?.enum || [
-    'DOUBLE',
-    'DOUBLELIST',
-    'DOUBLEARRAY',
-    'INT',
-    'INTLIST',
-    'INTARRAY',
-    'STRING',
-    'STRINGLIST',
-    'STRINGARRAY',
-    'BOOLEAN',
-    'DATE',
-    'DATELIST',
-    'DATEARRAY'
-  ];
 
-  // Get all possible category values
-  const categoryEnum = [
-    'constant',
-    'species',
-    'genotypic',
-    'soil',
-    'private',
-    'state',
-    'rate',
-    'auxiliary',
-    'exogenous'
-  ];
+  // Extract conditional category enums from schema
+  // This maps InputType values to their corresponding Category enums
+  const extractConditionalCategoryEnums = (): Record<string, string[]> => {
+    const conditionalEnums: Record<string, string[]> = {};
 
-  // Define columns for the data grid
-  const columns: Column<IInputOutputRow>[] = [
-    {
+    // Parse allOf conditionals to extract category enums based on InputType
+    if (itemSchema.allOf && Array.isArray(itemSchema.allOf)) {
+      itemSchema.allOf.forEach((condition: any) => {
+        // Check if this is a condition on InputType
+        if (condition.if?.properties?.InputType?.const) {
+          const inputTypeValue = condition.if.properties.InputType.const;
+          const categoryEnums =
+            condition.then?.properties?.Category?.enum || [];
+          if (categoryEnums.length > 0) {
+            conditionalEnums[inputTypeValue] = categoryEnums;
+          }
+        }
+      });
+    }
+
+    return conditionalEnums;
+  };
+
+  const categoryEnumsByInputType = extractConditionalCategoryEnums();
+
+  // Get category options for a specific row based on its InputType
+  const getCategoryOptions = (row: ITableRow): string[] => {
+    if (row.InputType && categoryEnumsByInputType[row.InputType]) {
+      return categoryEnumsByInputType[row.InputType];
+    }
+    // Fallback: return all possible categories if InputType not set
+    return Object.values(categoryEnumsByInputType).reduce(
+      (acc, curr) => acc.concat(curr),
+      [] as string[]
+    );
+  };
+
+  // Get conditional options for a field based on row values
+  const getConditionalOptions = (
+    fieldKey: string,
+    row: ITableRow
+  ): string[] | null => {
+    // Special handling for Category field with InputType condition
+    if (fieldKey === 'Category') {
+      return getCategoryOptions(row);
+    }
+    // Add more conditional logic here for other fields if needed
+    return null;
+  };
+
+  // Generate columns dynamically from schema
+  const columns: Column<ITableRow>[] = React.useMemo(() => {
+    const schemaProperties = itemSchema.properties || {};
+    const generatedColumns: Column<ITableRow>[] = [];
+
+    // Add index column first
+    generatedColumns.push({
       key: 'index',
       name: '#',
       width: 50,
       resizable: false,
       formatter: ({ rowIdx }) => <div>{rowIdx + 1}</div>
-    },
-    {
-      key: 'Type',
-      name: 'Type',
-      width: 120,
-      resizable: true,
-      editable: true,
-      editor: p => <EnumEditor {...p} options={typeEnum} />
-    },
-    {
-      key: 'Name',
-      name: 'Name',
-      width: 150,
-      resizable: true,
-      editable: true,
-      editor: TextEditor
-    },
-    {
-      key: 'Description',
-      name: 'Description',
-      width: 200,
-      resizable: true,
-      editable: true,
-      editor: TextEditor
-    },
-    {
-      key: 'InputType',
-      name: 'Input Type',
-      width: 120,
-      resizable: true,
-      editable: true,
-      editor: p => <EnumEditor {...p} options={inputTypeEnum} />
-    },
-    {
-      key: 'Category',
-      name: 'Category',
-      width: 120,
-      resizable: true,
-      editable: true,
-      editor: p => <EnumEditor {...p} options={categoryEnum} />
-    },
-    {
-      key: 'DataType',
-      name: 'Data Type',
-      width: 140,
-      resizable: true,
-      editable: true,
-      editor: p => <EnumEditor {...p} options={dataTypeEnum} />
-    },
-    {
-      key: 'Len',
-      name: 'Length',
-      width: 80,
-      resizable: true,
-      editable: true,
-      editor: TextEditor
-    },
-    {
-      key: 'Default',
-      name: 'Default',
-      width: 100,
-      resizable: true,
-      editable: true,
-      editor: TextEditor
-    },
-    {
-      key: 'Min',
-      name: 'Min',
-      width: 80,
-      resizable: true,
-      editable: true,
-      editor: TextEditor
-    },
-    {
-      key: 'Max',
-      name: 'Max',
-      width: 80,
-      resizable: true,
-      editable: true,
-      editor: TextEditor
-    },
-    {
-      key: 'Unit',
-      name: 'Unit',
-      width: 100,
-      resizable: true,
-      editable: true,
-      editor: TextEditor
-    },
-    {
-      key: 'Uri',
-      name: 'URI',
-      width: 150,
-      resizable: true,
-      editable: true,
-      editor: TextEditor
-    }
-  ];
+    });
+
+    // Generate columns from schema properties
+    Object.keys(schemaProperties).forEach(key => {
+      const propSchema = schemaProperties[key];
+      const hasEnum = propSchema.enum && Array.isArray(propSchema.enum);
+
+      // Determine column name from schema or use key
+      const columnName = propSchema.title || key;
+
+      // Determine width based on field type
+      let width = 120;
+      if (key === 'Description') {
+        width = 200;
+      } else if (key === 'Name') {
+        width = 150;
+      } else if (['Len', 'Min', 'Max'].includes(key)) {
+        width = 80;
+      } else if (key === 'DataType') {
+        width = 140;
+      } else if (key === 'Uri') {
+        width = 150;
+      }
+
+      // Create column definition
+      const column: Column<ITableRow> = {
+        key,
+        name: columnName,
+        width,
+        resizable: true,
+        editable: true,
+        editor: hasEnum
+          ? p => <EnumEditor {...p} options={propSchema.enum} />
+          : TextEditor
+      };
+
+      // Check for conditional enums (like Category)
+      const conditionalField = (fieldKey: any) => {
+        if (fieldKey === 'Category' && categoryEnumsByInputType) {
+          return (p: any) => (
+            <EnumEditor
+              {...p}
+              options={getConditionalOptions(fieldKey, p.row) || []}
+            />
+          );
+        }
+        return null;
+      };
+
+      const conditionalEditor = conditionalField(key);
+      if (conditionalEditor) {
+        column.editor = conditionalEditor;
+      }
+
+      generatedColumns.push(column);
+    });
+
+    return generatedColumns;
+  }, [itemSchema, categoryEnumsByInputType]);
 
   // Handle row updates
-  const handleRowsChange = (newRows: IInputOutputRow[]) => {
+  const handleRowsChange = (newRows: ITableRow[]) => {
     // Remove internal _id before passing to RJSF
     const cleanedRows = newRows.map(row => {
       const { _id, ...rest } = row;
@@ -280,17 +236,34 @@ export function InputsTableField(props: FieldProps): JSX.Element | null {
     onChange(cleanedRows);
   };
 
-  // Handle adding a new row
+  // Handle adding a new row with default values from schema
   const handleAddRow = () => {
-    const newRow: Partial<IInputOutputRow> = {
-      Type: 'input',
-      Name: '',
-      Description: '',
-      InputType: 'variable',
-      Category: 'state',
-      DataType: 'DOUBLE',
-      Unit: ''
-    };
+    const schemaProperties = itemSchema.properties || {};
+    const requiredFields = itemSchema.required || [];
+    const newRow: Record<string, any> = {};
+
+    // Set default values based on schema
+    Object.keys(schemaProperties).forEach(key => {
+      const propSchema = schemaProperties[key];
+
+      // Use default value from schema if available
+      if (propSchema.default !== undefined) {
+        newRow[key] = propSchema.default;
+      }
+      // For enum fields, use first value if field is required
+      else if (propSchema.enum && propSchema.enum.length > 0) {
+        if (requiredFields.includes(key)) {
+          newRow[key] = propSchema.enum[0];
+        }
+      }
+      // For string fields, use empty string if required
+      else if (propSchema.type === 'string') {
+        if (requiredFields.includes(key)) {
+          newRow[key] = '';
+        }
+      }
+    });
+
     onChange([...(formData as any[]), newRow]);
   };
 
@@ -326,7 +299,7 @@ export function InputsTableField(props: FieldProps): JSX.Element | null {
             columns={columns}
             rows={rows}
             onRowsChange={handleRowsChange}
-            rowKeyGetter={(row: IInputOutputRow) => row._id}
+            rowKeyGetter={(row: ITableRow) => row._id}
             className="rdg-light"
             style={{
               height: Math.min(500, rows.length * 35 + 35),
