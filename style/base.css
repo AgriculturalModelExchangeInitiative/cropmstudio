@@ -12,6 +12,8 @@
 .jp-cropmstudio-widget .jp-cropmstudio-container {
   display: flex;
   height: 100%;
+  width: 100%;
+  min-width: 0;
 }
 
 .jp-cropmstudio-widget .menu-panel {
@@ -40,10 +42,13 @@
   padding: 12px;
   box-sizing: border-box;
   overflow: auto;
+  min-width: 0;
 }
 
 .jp-cropmstudio-widget .form-container {
   padding: 12px;
+  width: 100%;
+  min-width: 0;
 }
 
 .jp-cropmstudio-widget .form-buttons {
@@ -72,6 +77,26 @@
   padding: 4px 0;
   font-weight: var(--jp-content-heading-font-weight);
   border-bottom: 1px solid var(--jp-border-color2);
+}
+
+/* Ensure form elements take full width */
+.jp-cropmstudio-widget .form-container fieldset,
+.jp-cropmstudio-widget .form-container .field,
+.jp-cropmstudio-widget .form-container .field-array {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+.jp-cropmstudio-widget .form-container .jp-root {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.jp-cropmstudio-widget .jp-arrayFieldWrapper {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
 }
 
 /* About component styles */
@@ -128,4 +153,137 @@
   border-top: 1px solid var(--jp-border-color2);
   color: var(--jp-ui-font-color2);
   font-style: italic;
+}
+
+/* InputsTableField component styles */
+.jp-cropmstudio-widget .jp-cropmstudio-inputs-table {
+  margin: 16px 0;
+  width: 100%;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-inputs-table .table-header {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--jp-border-color2);
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-inputs-table .table-header h3 {
+  margin: 0;
+  font-size: var(--jp-content-font-size2);
+  font-weight: var(--jp-content-heading-font-weight);
+  color: var(--jp-ui-font-color0);
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-inputs-table .table-header .required {
+  color: var(--jp-error-color0);
+  margin-left: 4px;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-inputs-table .table-container {
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 4px;
+  overflow: auto hidden;
+}
+
+/* Style react-data-grid to match JupyterLab theme */
+.jp-cropmstudio-widget .rdg {
+  border: none;
+  background-color: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color1);
+  font-family: var(--jp-ui-font-family);
+  font-size: var(--jp-ui-font-size1);
+}
+
+.jp-cropmstudio-widget .rdg-cell {
+  background-color: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color1);
+  border-right: 1px solid var(--jp-border-color2);
+  border-bottom: 1px solid var(--jp-border-color2);
+  padding: 4px 8px;
+}
+
+.jp-cropmstudio-widget .rdg-header-row {
+  background-color: var(--jp-layout-color2);
+  font-weight: var(--jp-content-heading-font-weight);
+}
+
+.jp-cropmstudio-widget .rdg-header-row .rdg-cell {
+  background-color: var(--jp-layout-color2);
+  color: var(--jp-ui-font-color0);
+  border-bottom: 2px solid var(--jp-border-color1);
+}
+
+.jp-cropmstudio-widget .rdg-row:hover .rdg-cell {
+  background-color: var(--jp-layout-color2);
+}
+
+.jp-cropmstudio-widget .rdg-text-editor {
+  background-color: var(--jp-layout-color0);
+  color: var(--jp-ui-font-color0);
+  border: 1px solid var(--jp-brand-color1);
+  border-radius: 2px;
+  padding: 4px;
+  font-family: var(--jp-ui-font-family);
+  font-size: var(--jp-ui-font-size1);
+}
+
+.jp-cropmstudio-widget .rdg-text-editor:focus {
+  outline: none;
+  border-color: var(--jp-brand-color0);
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-inputs-table .table-footer {
+  margin-top: 12px;
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-inputs-table .add-row-button {
+  font-size: var(--jp-ui-font-size1);
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-inputs-table .remove-row-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-inputs-table .remove-row-controls label {
+  font-size: var(--jp-ui-font-size1);
+  color: var(--jp-ui-font-color1);
+  margin: 0;
+}
+
+.jp-cropmstudio-widget
+  .jp-cropmstudio-inputs-table
+  .remove-row-controls
+  select {
+  padding: 4px 8px;
+  background-color: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color1);
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 4px;
+  font-family: var(--jp-ui-font-family);
+  font-size: var(--jp-ui-font-size1);
+  min-width: 200px;
+}
+
+.jp-cropmstudio-widget
+  .jp-cropmstudio-inputs-table
+  .remove-row-controls
+  select:focus {
+  outline: none;
+  border-color: var(--jp-brand-color1);
+}
+
+.jp-cropmstudio-widget .jp-cropmstudio-inputs-table .empty-message {
+  padding: 24px;
+  text-align: center;
+  color: var(--jp-ui-font-color2);
+  font-style: italic;
+  background-color: var(--jp-layout-color2);
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 4px;
 }
